@@ -3,17 +3,17 @@
 
 ## Development
 1. First set up a virtual enviornment and activate it.
-'''bash
+```bash
 $ python3 -m venv venv
 $ source venv/bin/activate
-'''
+```
 2. Inside the environment, install all dependencies for the project.
-'''bash
+```bash
 $ pip install -r requirements
-'''
+```
 3. Run the flask app
-'''bash
+```bash
 $ export FLASK\_APP=application
 $ export FLASK\_ENV=development
 $ flask run
-'''
+```
