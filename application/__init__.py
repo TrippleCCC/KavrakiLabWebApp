@@ -17,8 +17,7 @@ def create_app():
     except:
         pass
 
-    @app.route('/')
-    def hello():
-        return render_template('base.html')
-    
+    from . import home
+    app.register_blueprint(home.bp)
+
     return app	
