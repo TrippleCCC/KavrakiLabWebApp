@@ -19,7 +19,6 @@ def create_app():
 
     @app.route('/')
     def hello():
-        print('Hello, World!')
         return render_template('base.html')
     
     return app	
