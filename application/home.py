@@ -1,6 +1,6 @@
 import time
 from flask import (
-        Blueprint, render_template, redirect, url_for, request, current_app
+        Blueprint, render_template, redirect, url_for, request, current_app, jsonify
 )
 
 from application.db import get_db
@@ -44,3 +44,18 @@ def results(allele, protein):
 
     return render_template("results.html", results=data, allele=allele, 
             protein=protein, num_results=num_results, query_time=query_time)
+
+@bp.route("/suggest/<suggest_type>", methods=["GET"])
+def suggest(suggest_type):
+    db = get_db()
+    query = request.args.get("query")
+    if suggest_type == 'allele':
+        data = db.execute("SELECT DISTINCT allele FROM pdb_files WHERE allele LIKE ? LIMIT 5", (f'%{query}%',)).fetchall()
+        data = list(map(lambda r: {"value":r["allele"], "data":r["allele"]}, data))
+    elif suggest_type == "protein":
+        data = db.execute("SELECT DISTINCT protein FROM pdb_files WHERE protein LIKE ? LIMIT 5", (f'%{query}%',)).fetchall()
+        data = list(map(lambda r: {"value":r["protein"], "data":r["protein"]}, data))
+    else:
+        data = []
+
+    return jsonify({"suggestions":data}) 
