@@ -13,18 +13,35 @@
 		<title>Kavraki Lab Web App</title>
 	</head>
 	<body>
-		<h1>Kavraki Lab Web App</h1>
+		<nav class="navbar navbar-dark bg-dark mb-3">
+			<div class="container-fluid">
+				<a class="navbar-brand mb-auto h1" href="/">
+					Kavraki Lab Web App
+				</a>
+			</div>
+		</nav>
 
-		<form action="/search" method="post">
-			<label for="allele">Allele</label>
-			<input name="allele" id="allele">
-			<label for="protein">Protein</label>
-			<input name="protein" id="protein">
-			<input type="submit" value="search">
+		<form action="/search" method="post" class="container mb-3">
+			<h3>Search for a file</h3>
+			<div class="row g-0">
+				<div class="col-sm">
+					<label for="allele" class="form-label">Allele</label>
+					<input name="allele" id="allele" placeholder="Enter an allele"/>
+				</div>
+				<div class="col-sm">
+					<label for="protein" class="form-label">Protein</label>
+					<input name="protein" id="protein" placeholder="Enter a protein"/>
+				</div>
+				<div class="col-sm">
+					<input class="btn btn-outline-success" type="submit" value="search">
+				</div>
+			</div>
 		</form>
 
 
+		<div class="container">
 		{% block results %}{% endblock %}
+		</div>
 
 		<!-- Bootstrap JavaScript -->
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" 

@@ -8,7 +8,7 @@ bp = Blueprint("home", __name__, "/")
 
 @bp.route("/", methods=["GET"])
 def home():
-    return render_template("base.html")
+    return render_template("base.html", allele=None)
 
 @bp.route("/search", methods=["POST"])
 def search():
@@ -21,7 +21,9 @@ def search():
 @bp.route("/results/<allele>/<protein>", methods=["GET"])
 def results(allele, protein):
     db = get_db()
-    data = None
+    data = []
+
+    # Check the parameters and search the database
     if (allele, protein) == ("any-allele", "any-protein"):
         return render_template("results.html")
     elif allele == "any-allele":
@@ -30,5 +32,8 @@ def results(allele, protein):
     elif protein == "any-protein":
         data = db.execute("""SELECT * FROM pdb_files WHERE allele = ?""",
                 (allele,)).fetchall()
+    else:
+        data = db.execute("""SELECT * FROM pdb_files WHERE allele = ?
+            AND protein = ?""", (allele, protein))
 
     return render_template("results.html", results=data)
