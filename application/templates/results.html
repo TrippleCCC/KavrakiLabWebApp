@@ -1,9 +1,24 @@
 {% extends 'base.html' %}
 
 {% block results %}
-<ul>
+<h5>Results</h5>
+<p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
+<table class="table table-striped">
+	<thread>
+		<tr>
+			<th scope="col">Allele</th>
+			<th scope="col">Protein</th>
+			<th scope="col">Filepath</th>
+		</tr>
+	</thread>
+	<tbody>
 	{% for row in results %}
-	<li>{{ row["allele"] }} {{ row["protein"] }} {{ row["filepath"] }}</li>
+	<tr>
+		<th scope="row">{{ row["allele"] }}</th>
+		<td>{{ row["protein"] }}</td>
+		<td>{{ row["filepath"] }}</td>
+	</tr>
 	{% endfor %}
-</ul>
+	</tbody>
+</table>
 {% endblock %}
