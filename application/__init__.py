@@ -4,11 +4,11 @@ from flask import render_template
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, instance_relative_config=True)
 
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'index.db')
+        DATABASE=os.path.join(app.instance_path, "index.db")
     )
 
     # ensure the instance folder exists
@@ -17,6 +17,7 @@ def create_app():
     except:
         pass
 
+    # Add paths for home ("/")
     from . import home
     app.register_blueprint(home.bp)
 

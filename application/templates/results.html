@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block results %}
+<ul>
+{% for row in results %}
+<li>{{ row["allele"] }} {{ row["protein"] }} {{ row["filepath"] }}</li>
+{% endfor %}
+</ul>
+{% endblock %}
