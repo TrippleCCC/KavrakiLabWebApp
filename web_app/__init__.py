@@ -3,13 +3,17 @@ from flask import Flask
 from flask import render_template
 
 
-def create_app():
+def create_app(dev=False):
     app = Flask(__name__, instance_relative_config=True)
 
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, "index.db")
     )
+
+    # Set development enviornment
+    if dev:
+        app.config["FLASK_ENV"] = "development"
 
     # ensure the instance folder exists
     try:
