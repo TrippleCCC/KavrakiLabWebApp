@@ -48,8 +48,8 @@
 						<input name="allele" id="allele" placeholder="Enter an allele" value='{{ allele if allele else "" }}'/>
 					</div>
 					<div class="col">
-						<label for="protein" class="form-label">Protein</label>
-						<input name="protein" id="protein" placeholder="Enter a protein" value='{{ protein if protein else "" }}'/>
+						<label for="peptide" class="form-label">Peptide</label>
+						<input name="peptide" id="peptide" placeholder="Enter a peptide" value='{{ peptide if peptide else "" }}'/>
 					</div>
 					<div class="col">
 						<input class="btn btn-outline-success" type="submit" value="search">
@@ -68,8 +68,8 @@
 				serviceUrl: '/suggest/allele',
 				dataType: 'json',
 			});
-			$('#protein').autocomplete({
-				serviceUrl: '/suggest/protein',
+			$('#peptide').autocomplete({
+				serviceUrl: '/suggest/peptide',
 				dataType: 'json',
 			});
 		</script>

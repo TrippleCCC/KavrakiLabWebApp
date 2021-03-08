@@ -7,7 +7,7 @@
 	<thread>
 		<tr>
 			<th scope="col">Allele</th>
-			<th scope="col">Protein</th>
+			<th scope="col">Peptide</th>
 			<th scope="col">Filepath</th>
 		</tr>
 	</thread>
@@ -15,7 +15,7 @@
 	{% for row in results %}
 	<tr>
 		<th scope="row">{{ row["allele"] }}</th>
-		<td>{{ row["protein"] }}</td>
+		<td>{{ row["peptide"] }}</td>
 		<td>{{ row["filepath"] }}</td>
 	</tr>
 	{% endfor %}
