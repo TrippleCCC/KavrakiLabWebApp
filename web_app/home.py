@@ -3,7 +3,7 @@ from flask import (
         Blueprint, render_template, redirect, url_for, request, current_app, jsonify
 )
 
-from application.db import get_db
+from web_app.db import get_db
 
 bp = Blueprint("home", __name__, "/")
 
