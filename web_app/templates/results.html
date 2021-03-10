@@ -9,6 +9,7 @@
 			<th scope="col">Allele</th>
 			<th scope="col">Peptide</th>
 			<th scope="col">Filepath</th>
+			<th scope="col">Download</th>
 		</tr>
 	</thread>
 	<tbody>
@@ -17,6 +18,7 @@
 		<th scope="row">{{ row["allele"] }}</th>
 		<td>{{ row["peptide"] }}</td>
 		<td>{{ row["filepath"] }}</td>
+		<td><button type="button" class="btn btn-primary">Download</button></td>
 	</tr>
 	{% endfor %}
 	</tbody>
