@@ -3,6 +3,13 @@
 {% block results %}
 <h5>Results</h5>
 <p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
+{% with flash_message = get_flashed_messages() %}
+	{% if flash_message %}
+		<div class="alert alert-primary" role="alert">
+			{{ flash_message }} ✅
+		</div>
+	{% endif %}
+{% endwith %}
 <table class="table table-striped">
 	<thread>
 		<tr>
@@ -18,7 +25,7 @@
 		<th scope="row">{{ row["allele"] }}</th>
 		<td>{{ row["peptide"] }}</td>
 		<td>{{ row["filepath"] }}</td>
-		<td><button type="button" class="btn btn-primary">Download</button></td>
+		<td><a href='{{ url_for("home.download", path=row["filepath"]) }}' ="button" class="btn btn-primary">Download</button></td>
 	</tr>
 	{% endfor %}
 	</tbody>

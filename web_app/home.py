@@ -1,6 +1,6 @@
 import time
 from flask import (
-        Blueprint, render_template, redirect, url_for, request, current_app, jsonify
+        Blueprint, render_template, redirect, url_for, request, current_app, jsonify, send_file, flash
 )
 
 from web_app.db import get_db
@@ -60,3 +60,11 @@ def suggest(suggest_type):
         data = []
 
     return jsonify({"suggestions":data}) 
+
+@bp.route("/download")
+def download():
+    if "rdf_mount" not in request.args.get("path"):
+        flash("Error in file path")
+        return redirect(url_for("home.results"))
+    flash("Successfully loaded file")
+    return send_file(request.args.get("path"), as_attachment=True)
