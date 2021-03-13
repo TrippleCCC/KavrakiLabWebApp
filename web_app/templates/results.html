@@ -15,6 +15,7 @@
 		<tr>
 			<th scope="col">Allele</th>
 			<th scope="col">Peptide</th>
+			<th scope="col">Binder</th>
 			<th scope="col">Filepath</th>
 			<th scope="col">Download</th>
 		</tr>
@@ -24,6 +25,7 @@
 	<tr>
 		<th scope="row">{{ row["allele"] }}</th>
 		<td>{{ row["peptide"] }}</td>
+		<td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
 		<td>{{ row["filepath"] }}</td>
 		<td><a href='{{ url_for("home.download", path=row["filepath"]) }}' ="button" class="btn btn-primary">Download</button></td>
 	</tr>
