@@ -51,6 +51,14 @@
 						<label for="peptide" class="form-label">Peptide</label>
 						<input name="peptide" id="peptide" placeholder="Enter a peptide" value='{{ peptide if peptide else "" }}'/>
 					</div>
+					<div class="col form-check">
+                        <input {% if binder %}checked{% else %}{% endif %} id="binder" type="checkbox" class="form-check-input" name="binder"/>
+						<label class="form-check-label" for="binder">Binder</label>
+					</div>
+					<div class="col form-check">
+						<input {% if non_binder %}checked{% else %}{% endif %} id="non-binder" type="checkbox" class="form-check-input" name="non-binder"/>
+						<label class="form-check-label" for="non-binder">Non-binder</label>
+					</div>
 					<div class="col">
 						<input class="btn btn-outline-success" type="submit" value="search">
 					</div>
