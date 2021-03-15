@@ -1,4 +1,7 @@
 import time
+import os
+import io
+import zipfile
 from flask import (
         Blueprint, render_template, redirect, url_for, request, current_app, jsonify, send_file, flash
 )
@@ -47,8 +50,6 @@ def results():
         binder_values.append("0")
 
     binder_values = "(" + ", ".join(binder_values) + ")"
-    print(binder, non_binder)
-    print(binder_values)
 
     start = time.time()
     # Check the parameters and search the database
@@ -78,7 +79,7 @@ def results():
 def suggest(suggest_type):
     db = get_db()
     query = request.args.get("query")
-    # get the suggestions based on the suggestion type
+    # Get the suggestions based on the suggestion type
     if suggest_type == 'allele':
         data = db.execute("SELECT DISTINCT allele FROM pdb_files WHERE allele LIKE ? LIMIT 5", (f'%{query}%',)).fetchall()
         data = list(map(lambda r: {"value":r["allele"], "data":r["allele"]}, data))
@@ -98,3 +99,17 @@ def download():
         return redirect(url_for("home.results"))
     flash("Successfully loaded file")
     return send_file(request.args.get("path"), as_attachment=True)
+
+@bp.route("/download-all", methods=["POST"])
+def download_all():
+    all_filepaths = request.json
+    print(all_filepaths)
+    if not all_filepaths["filepaths"]:
+        return "", 403
+    zip_file = io.BytesIO()
+    with zipfile.ZipFile(zip_file, "w") as zf:
+        for filename in all_filepaths["filepaths"]:
+            zf.write(filename, compress_type=zipfile.ZIP_DEFLATED, 
+                    arcname=os.path.basename(filename))
+    zip_file.seek(0)
+    return send_file(zip_file, attachment_filename="download.zip", as_attachment=True)

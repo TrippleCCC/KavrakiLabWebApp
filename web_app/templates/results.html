@@ -18,6 +18,14 @@
 			<th scope="col">Binder</th>
 			<th scope="col">Filepath</th>
 			<th scope="col">Download</th>
+            <th scope="col">
+                <div class="container d-flex justify-content-center">
+                    <button id="download-selected" class="btn btn-link">Download Selected</button>
+                </div>
+                <div class="container d-flex justify-content-center">
+                    <input type="checkbox" id="select-all" />
+                </div>
+            </th>
 		</tr>
 	</thread>
 	<tbody>
@@ -27,9 +35,60 @@
 		<td>{{ row["peptide"] }}</td>
 		<td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
 		<td>{{ row["filepath"] }}</td>
-		<td><a href='{{ url_for("home.download", path=row["filepath"]) }}' ="button" class="btn btn-primary">Download</button></td>
+		<td><a href='{{ url_for("home.download", path=row["filepath"]) }}' class="btn btn-primary">Download</button></td>
+        <td>
+            <div class="container d-flex h-100 justify-content-center">
+                <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["filepath"] }}"/>
+            </div>
+        </td>
 	</tr>
 	{% endfor %}
 	</tbody>
 </table>
+<script>
+    // Behavior for the select all button
+    $("#select-all").click(function(event) {
+        if (this.checked) {
+            $(".selection-item").each(function(event) {
+                    this.checked = true;
+            });
+        } else {
+            $(".selection-item").each(function(event) {
+                    this.checked = false;
+            });
+        }
+    });
+
+    // Functionality for Download select button
+    $("#download-selected").click(function(event) {
+            let data = $(".selection-item").filter(function() {
+                    return this.checked;
+                    }).map(function() {
+                        return this.value;
+                        }).get();
+            if (data.length === 0) {
+                alert("No files selected");
+                return;
+            }
+
+            fetch("/download-all", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({"filepaths": data})
+                    }).then(resp => resp.blob())
+            .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.style.display = "none";
+                    a.href = url;
+                    a.download = 'download.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    alert("File Downloaded");
+                    });
+    });
+</script>
 {% endblock %}
