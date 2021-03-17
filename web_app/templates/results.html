@@ -7,7 +7,7 @@
 	{% if flash_message %}
         {% for msg in flash_message %}
             <div class="alert alert-warning" role="alert">
-                {{ msg }} ⚠️ 
+                ⚠️  {{ msg }} 
             </div>
         {% endfor %}
 	{% endif %}
@@ -40,7 +40,7 @@
 		<td><a href='{{ url_for("home.download", path=row["filepath"]) }}' class="btn btn-primary">Download</button></td>
         <td>
             <div class="container d-flex h-100 justify-content-center">
-                <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["filepath"] }}"/>
+                <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["id"] }}"/>
             </div>
         </td>
 	</tr>
@@ -78,7 +78,7 @@
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({"filepaths": data})
+                    body: JSON.stringify({"ids": data})
                     }).then(resp => resp.blob())
             .then(blob => {
                     const url = window.URL.createObjectURL(blob);

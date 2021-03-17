@@ -21,6 +21,9 @@ def create_app(dev=False):
     except:
         pass
 
+    from . import db
+    db.init_app(app)
+
     # Add paths for home ("/")
     from . import home
     app.register_blueprint(home.bp)
