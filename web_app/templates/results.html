@@ -3,11 +3,13 @@
 {% block results %}
 <h5>Results</h5>
 <p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
-{% with flash_message = get_flashed_messages() %}
+{% with flash_message = get_flashed_messages(category_filter=["warning"]) %}
 	{% if flash_message %}
-		<div class="alert alert-primary" role="alert">
-			{{ flash_message }} ✅
-		</div>
+        {% for msg in flash_message %}
+            <div class="alert alert-warning" role="alert">
+                {{ msg }} ⚠️ 
+            </div>
+        {% endfor %}
 	{% endif %}
 {% endwith %}
 <table class="table table-striped">
