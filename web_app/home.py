@@ -17,6 +17,8 @@ WHERE allele LIKE :allele AND peptide LIKE :allele
 AND binder IN :binder_values
 """
 
+LIMIT_MESSAGE = "Results have been limited to 2000 for all-allele, all-pepetide search"
+
 @bp.route("/", methods=["GET"])
 def home():
     return render_template("base.html", allele=None)
@@ -55,7 +57,9 @@ def results():
     # Check the parameters and search the database
     # TODO: add pagination functionality for these results.
     if (allele, peptide) == ("any-allele", "any-peptide"):
-        data = db.execute("SELECT * FROM pdb_files WHERE binder IN ? LIMIT 2000", (binder_values,)).fetchall()
+        # Let user know theres a limit on the results.
+        flash(LIMIT_MESSAGE, "warning")
+        data = db.execute(f"SELECT * FROM pdb_files WHERE binder IN {binder_values} LIMIT 2000").fetchall()
     elif allele == "any-allele":
         data = db.execute(f"SELECT * FROM pdb_files WHERE peptide = ? AND binder IN {binder_values}",
                 (peptide,)).fetchall()
@@ -94,18 +98,20 @@ def suggest(suggest_type):
 
 @bp.route("/download")
 def download():
+    # Make sure that the path is in rdf_mount
     if "rdf_mount" not in request.args.get("path"):
-        flash("Error in file path")
+        flash("Error in file path", "error")
         return redirect(url_for("home.results"))
-    flash("Successfully loaded file")
     return send_file(request.args.get("path"), as_attachment=True)
 
 @bp.route("/download-all", methods=["POST"])
 def download_all():
+    # Get the file paths from the request.
     all_filepaths = request.json
-    print(all_filepaths)
     if not all_filepaths["filepaths"]:
         return "", 403
+
+    # Read the files and zip the together
     zip_file = io.BytesIO()
     with zipfile.ZipFile(zip_file, "w") as zf:
         for filename in all_filepaths["filepaths"]:
