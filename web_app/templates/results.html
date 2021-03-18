@@ -1,6 +1,32 @@
 {% extends 'base.html' %}
 
 {% block results %}
+<!-- Modal -->
+<div class="modal fade" id="DownloadModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Downloading Files</h5>
+            </div>
+            <div class="modal-body">
+                <p id="loading-status"></p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div id="loading-spinner" class="container pt-3" style="visibility:hidden">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                    <span>Retriving File</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancel-download" class="btn btn-danger">Cancel Download</button>
+                <button type="button" id="close-button" class="btn btn-secondary" data-dismiss="modal" disabled>Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <h5>Results</h5>
 <p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
 {% with flash_message = get_flashed_messages(category_filter=["warning"]) %}
@@ -37,7 +63,7 @@
 		<td>{{ row["peptide"] }}</td>
 		<td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
 		<td>{{ row["filepath"] }}</td>
-		<td><a href='{{ url_for("home.download", path=row["filepath"]) }}' class="btn btn-primary">Download</button></td>
+		<td><a href='{{ url_for("download.download", path=row["filepath"]) }}' class="btn btn-primary">Download</button></td>
         <td>
             <div class="container d-flex h-100 justify-content-center">
                 <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["id"] }}"/>
@@ -47,50 +73,5 @@
 	{% endfor %}
 	</tbody>
 </table>
-<script>
-    // Behavior for the select all button
-    $("#select-all").click(function(event) {
-        if (this.checked) {
-            $(".selection-item").each(function(event) {
-                    this.checked = true;
-            });
-        } else {
-            $(".selection-item").each(function(event) {
-                    this.checked = false;
-            });
-        }
-    });
-
-    // Functionality for Download select button
-    $("#download-selected").click(function(event) {
-            let data = $(".selection-item").filter(function() {
-                    return this.checked;
-                    }).map(function() {
-                        return this.value;
-                        }).get();
-            if (data.length === 0) {
-                alert("No files selected");
-                return;
-            }
-
-            fetch("/download-all", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({"ids": data})
-                    }).then(resp => resp.blob())
-            .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.style.display = "none";
-                    a.href = url;
-                    a.download = 'download.zip';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    alert("File Downloaded");
-                    });
-    });
-</script>
+<script src='{{ url_for("static", filename="js/result_page.js") }}'></script>
 {% endblock %}
