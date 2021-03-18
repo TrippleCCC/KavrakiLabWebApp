@@ -60,6 +60,7 @@ async function init_ping_download(data) {
         // Now download the file
         $("#loading-status").html("Zipped all " + pro["total"].toString() + " file(s).");
         $("#loading-spinner").css("visibility", "visible");
+        $("#cancel-download").prop("disabled", true);
         fetch("/download/get_zip", {
             method: "POST",
             headers: {
@@ -116,6 +117,7 @@ $("#download-selected").click(function(event) {
     $(".progress-bar").css("width", "0%");
     $("#loading-status").html("");
     $("#close-button").prop("disabled", true);
+    $("#cancel-download").prop("disabled", false);
     $('#DownloadModal').modal({show: true});
     init_ping_download(data);
 });
