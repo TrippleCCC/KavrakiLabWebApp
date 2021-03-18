@@ -28,6 +28,10 @@ def create_app(dev=False):
     from . import home
     app.register_blueprint(home.bp)
 
+    # Add paths for download ("/download")
+    from . import download
+    app.register_blueprint(download.bp)
+
     return app	
 
 if __name__ == "__main__":

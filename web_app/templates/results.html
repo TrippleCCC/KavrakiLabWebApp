@@ -37,7 +37,7 @@
 		<td>{{ row["peptide"] }}</td>
 		<td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
 		<td>{{ row["filepath"] }}</td>
-		<td><a href='{{ url_for("home.download", path=row["filepath"]) }}' class="btn btn-primary">Download</button></td>
+		<td><a href='{{ url_for("download.download", path=row["filepath"]) }}' class="btn btn-primary">Download</button></td>
         <td>
             <div class="container d-flex h-100 justify-content-center">
                 <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["id"] }}"/>
@@ -73,7 +73,7 @@
                 return;
             }
 
-            fetch("/download-all", {
+            fetch("/download/all", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
