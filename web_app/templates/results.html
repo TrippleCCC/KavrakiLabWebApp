@@ -1,6 +1,32 @@
 {% extends 'base.html' %}
 
 {% block results %}
+<!-- Modal -->
+<div class="modal fade" id="DownloadModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Downloading Files</h5>
+            </div>
+            <div class="modal-body">
+                <p id="loading-status"></p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div id="loading-spinner" class="container pt-3" style="visibility:hidden">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                    <span>Retriving File</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancel-download" class="btn btn-danger">Cancel Download</button>
+                <button type="button" id="close-button" class="btn btn-secondary" data-dismiss="modal" disabled>Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <h5>Results</h5>
 <p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
 {% with flash_message = get_flashed_messages(category_filter=["warning"]) %}
