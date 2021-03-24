@@ -60,7 +60,7 @@ def results():
 
     # Add limit if allele and peptide are not specified
     if (allele, peptide) == ("any-allele", "any-peptide"):
-        flash(LIMIT_MESSAGE)
+        flash(LIMIT_MESSAGE, "warning")
         query_builder = query_builder.limit(2000)
 
     start = time.time()
