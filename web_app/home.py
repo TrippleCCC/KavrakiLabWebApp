@@ -2,6 +2,7 @@ import time
 import os
 import io
 import zipfile
+from pypika import Query, Table
 from flask import (
         Blueprint, render_template, redirect, url_for, request, current_app, jsonify, send_file, flash
 )
@@ -10,19 +11,11 @@ from web_app.db import get_db
 
 bp = Blueprint("home", __name__, "/")
 
-results_query = """
-SELECT allele, peptide, binder, filepath
-FROM pdb_files
-WHERE allele LIKE :allele AND peptide LIKE :allele
-AND binder IN :binder_values
-"""
-
 LIMIT_MESSAGE = "Results have been limited to 2000 for all-allele, all-pepetide search"
 
 @bp.route("/", methods=["GET"])
 def home():
     return render_template("base.html", allele=None)
-
 
 @bp.route("/search", methods=["POST"])
 def search():
@@ -31,44 +24,47 @@ def search():
     peptide = request.form.get("peptide") or "any-peptide"
     binder = request.form.get("binder") or "off"
     non_binder = request.form.get("non-binder") or "off"
-    return redirect(url_for(".results", allele=allele, peptide=peptide, binder=binder, non_binder=non_binder))
+    return redirect(
+            url_for(".results", allele=allele, peptide=peptide, binder=binder, non_binder=non_binder))
 
 
 @bp.route("/results", methods=["GET"])
 def results():
     db = get_db()
     data = []
-    parameters = dict()
 
     allele = request.args.get("allele")
     peptide = request.args.get("peptide")
-    binder = 1 if request.args.get("binder") == "on" else 0
-    non_binder = 1 if request.args.get("non_binder") == "on" else 0
+    binder = request.args.get("binder")
+    non_binder = request.args.get("non_binder")
 
-    binder_values = []
-    if binder:
-        binder_values.append("1")
-    if non_binder:
-        binder_values.append("0")
+    # Begin Query building
+    pdb_files = Table("pdb_files")
+    query_builder = Query.from_(pdb_files).select(
+            pdb_files.id, pdb_files.allele, pdb_files.peptide, 
+            pdb_files.binder, pdb_files.filepath)
 
-    binder_values = "(" + ", ".join(binder_values) + ")"
+    # Add WHERE conditions for alleles and peptides
+    if allele != "any-allele":
+        query_builder = query_builder.where(pdb_files.allele == allele)
+    if peptide != "any-peptide":
+        query_builder = query_builder.where(pdb_files.peptide == peptide)
+
+    # Add IN clause for binders
+    binders = []
+    if binder == "on":
+        binders.append(1)
+    if non_binder == "on":
+        binders.append(0)
+    query_builder = query_builder.where(pdb_files.binder.isin(binders))
+
+    # Add limit if allele and peptide are not specified
+    if (allele, peptide) == ("any-allele", "any-peptide"):
+        flash(LIMIT_MESSAGE, "warning")
+        query_builder = query_builder.limit(2000)
 
     start = time.time()
-    # Check the parameters and search the database
-    # TODO: add pagination functionality for these results.
-    if (allele, peptide) == ("any-allele", "any-peptide"):
-        # Let user know theres a limit on the results.
-        flash(LIMIT_MESSAGE, "warning")
-        data = db.execute(f"SELECT * FROM pdb_files WHERE binder IN {binder_values} LIMIT 2000").fetchall()
-    elif allele == "any-allele":
-        data = db.execute(f"SELECT * FROM pdb_files WHERE peptide = ? AND binder IN {binder_values}",
-                (peptide,)).fetchall()
-    elif peptide == "any-peptide":
-        data = db.execute(f"SELECT * FROM pdb_files WHERE allele = ? AND binder in {binder_values}",
-                (allele,)).fetchall()
-    else:
-        data = db.execute(f"""SELECT * FROM pdb_files WHERE allele = ?
-            AND peptide = ? AND binder in {binder_values}""", (allele, peptide)).fetchall()
+    data = db.execute(query_builder.get_sql()).fetchall()
     end = time.time()
 
     query_time = end - start
@@ -83,16 +79,26 @@ def results():
 def suggest(suggest_type):
     db = get_db()
     query = request.args.get("query")
-    # Get the suggestions based on the suggestion type
-    if suggest_type == 'allele':
-        data = db.execute("SELECT DISTINCT allele FROM pdb_files WHERE allele LIKE ? LIMIT 5", (f'%{query}%',)).fetchall()
-        data = list(map(lambda r: {"value":r["allele"], "data":r["allele"]}, data))
+
+    data = []
+
+    # Begin Query building
+    pdb_files = Table("pdb_files")
+    query_builder = Query.from_(pdb_files)
+
+    # Determine the suggestions based on the suggestion type
+    if suggest_type == "allele":
+        query_builder = query_builder.select(pdb_files.allele).distinct() \
+                .where(pdb_files.allele.like(f"%{query}%"))
     elif suggest_type == "peptide":
-        data = db.execute("SELECT DISTINCT peptide FROM pdb_files WHERE peptide LIKE ? LIMIT 5", (f'%{query}%',)).fetchall()
-        data = list(map(lambda r: {"value":r["peptide"], "data":r["peptide"]}, data))
-    else:
-        data = []
+        query_builder = query_builder.select(pdb_files.peptide).distinct() \
+                .where(pdb_files.peptide.like(f"%{query}%"))
+
+    query_builder = query_builder.limit(5)
+
+    # Retrive data and reformat
+    data = db.execute(query_builder.get_sql()).fetchall()
+    data = list(map(lambda r: {"value":r[suggest_type], "data":r[suggest_type]}, data))
 
     return jsonify({"suggestions":data}) 
-
 
