@@ -41,7 +41,8 @@ def results():
     # Begin Query building
     pdb_files = Table("pdb_files")
     query_builder = Query.from_(pdb_files).select(
-            pdb_files.allele, pdb_files.peptide, pdb_files.binder)
+            pdb_files.id, pdb_files.allele, pdb_files.peptide, 
+            pdb_files.binder, pdb_files.filepath)
 
     # Add WHERE conditions for alleles and peptides
     if allele != "any-allele":
