@@ -63,7 +63,7 @@
 	{% for row in results %}
 	<tr>
 		<td>{{ row["allele"] }}</td>
-		<td>{{ row["peptide"] }}</td>
+        <td>{{ row["peptide"] | safe}}</td>
 		<td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
 		<td>
             <div class="container d-flex h-100 justify-content-center">

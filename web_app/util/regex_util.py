@@ -1,4 +1,3 @@
-
 def create_peptide_regex(query):
     # Split strings into letter position pairs
     pairs = list(map(lambda p: p.strip(), query.split(",")))
@@ -37,4 +36,15 @@ def create_peptide_regex(query):
     final_regex = "^." + ".".join(regex_sections) + ".*"
 
     return final_regex
+
+
+def add_bold_tags_to_peptides(query, peptide):
+    peptide_letters = list(peptide)
+    
+    # Insert bold tags between letters
+    for i in range(len(peptide_letters)):
+        if peptide_letters[i] + str(i+1) in query:
+            peptide_letters[i] = "<b>" + peptide_letters[i] + "</b>"
+
+    return "".join(peptide_letters)
 

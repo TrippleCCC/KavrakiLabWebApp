@@ -3,7 +3,7 @@ import os
 import io
 import zipfile
 import re
-from web_app.util.regex_util import create_peptide_regex
+from web_app.util.regex_util import create_peptide_regex, add_bold_tags_to_peptides 
 from pypika import Query, Table
 from flask import (
         Blueprint, render_template, redirect, url_for, request, current_app, jsonify, send_file, flash
@@ -85,6 +85,11 @@ def results():
         data = list(filter(lambda x: pattern.match(x["peptide"]) is not None, data))
 
     end = time.time()
+
+    # If we are searching by regex then add b tags to peptide.
+    if peptide_regex == "on":
+        for i in range(len(data)):
+            data[i]["peptide"] = add_bold_tags_to_peptides(peptide, data[i]["peptide"])
 
     query_time = end - start
     num_results = len(data)
