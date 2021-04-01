@@ -46,7 +46,13 @@ def results():
 
     # Add WHERE conditions for alleles and peptides
     if allele != "any-allele":
-        query_builder = query_builder.where(pdb_files.allele == allele)
+        # Process list of alleles
+        alleles = list(map(lambda a: a.strip(), allele.split(",")))
+        query_builder = query_builder.where(
+                pdb_files.allele.isin(alleles)
+        )
+        # TODO: if any-peptide is selected, we should have links to 
+        # pre-zipped files for each allele
     if peptide != "any-peptide":
         query_builder = query_builder.where(pdb_files.peptide == peptide)
 
@@ -63,6 +69,7 @@ def results():
         flash(LIMIT_MESSAGE, "warning")
         query_builder = query_builder.limit(2000)
 
+    # Calculate query time
     start = time.time()
     data = db.execute(query_builder.get_sql()).fetchall()
     end = time.time()
@@ -94,6 +101,7 @@ def suggest(suggest_type):
         query_builder = query_builder.select(pdb_files.peptide).distinct() \
                 .where(pdb_files.peptide.like(f"%{query}%"))
 
+    # limit suggestions to 5
     query_builder = query_builder.limit(5)
 
     # Retrive data and reformat
