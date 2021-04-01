@@ -81,7 +81,8 @@ def results():
 
     # Filter using regex
     if peptide_regex == "on":
-        pattern = re.compile(create_peptide_regex(peptide))
+        p_regex = create_peptide_regex(peptide)
+        pattern = re.compile(p_regex)
         data = list(filter(lambda x: pattern.match(x["peptide"]) is not None, data))
 
     end = time.time()

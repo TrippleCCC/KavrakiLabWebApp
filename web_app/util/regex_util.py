@@ -7,7 +7,11 @@ def create_peptide_regex(query):
 
     # filter out invalid pairs
     pairs = list(filter(validate_pair, pairs))
-    
+
+    # Return a regex that matches nothing if there are no pairs
+    if not pairs:
+        return "$^"
+
     # transform pairs to tuples
     pairs = list(map(lambda p: [p[0].upper(), int(p[1])], pairs))
     
