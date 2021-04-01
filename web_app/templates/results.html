@@ -62,7 +62,7 @@
 	<tbody>
 	{% for row in results %}
 	<tr>
-		<th scope="row">{{ row["allele"] }}</th>
+		<td>{{ row["allele"] }}</td>
 		<td>{{ row["peptide"] }}</td>
 		<td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
 		<td>
