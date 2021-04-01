@@ -2,6 +2,8 @@ import time
 import os
 import io
 import zipfile
+import re
+from web_app.util.regex_util import create_peptide_regex
 from pypika import Query, Table
 from flask import (
         Blueprint, render_template, redirect, url_for, request, current_app, jsonify, send_file, flash
@@ -24,8 +26,10 @@ def search():
     peptide = request.form.get("peptide") or "any-peptide"
     binder = request.form.get("binder") or "off"
     non_binder = request.form.get("non-binder") or "off"
+    peptide_regex = request.form.get("peptide-regex") or "off"
     return redirect(
-            url_for(".results", allele=allele, peptide=peptide, binder=binder, non_binder=non_binder))
+            url_for(".results", allele=allele, peptide=peptide, 
+                binder=binder, non_binder=non_binder, peptide_regex=peptide_regex))
 
 
 @bp.route("/results", methods=["GET"])
@@ -37,6 +41,7 @@ def results():
     peptide = request.args.get("peptide")
     binder = request.args.get("binder")
     non_binder = request.args.get("non_binder")
+    peptide_regex = request.args.get("peptide_regex")
 
     # Begin Query building
     pdb_files = Table("pdb_files")
@@ -53,7 +58,7 @@ def results():
         )
         # TODO: if any-peptide is selected, we should have links to 
         # pre-zipped files for each allele
-    if peptide != "any-peptide":
+    if peptide != "any-peptide" and peptide_regex == "off":
         query_builder = query_builder.where(pdb_files.peptide == peptide)
 
     # Add IN clause for binders
@@ -71,7 +76,14 @@ def results():
 
     # Calculate query time
     start = time.time()
+
     data = db.execute(query_builder.get_sql()).fetchall()
+
+    # Filter using regex
+    if peptide_regex == "on":
+        pattern = re.compile(create_peptide_regex(peptide))
+        data = list(filter(lambda x: pattern.match(x["peptide"]) is not None, data))
+
     end = time.time()
 
     query_time = end - start
@@ -79,7 +91,7 @@ def results():
 
     return render_template("results.html", results=data, allele=allele, 
             peptide=peptide, num_results=num_results, query_time=query_time,
-            binder=binder, non_binder=non_binder)
+            binder=binder, non_binder=non_binder, peptide_regex=peptide_regex)
 
 
 @bp.route("/suggest/<suggest_type>", methods=["GET"])

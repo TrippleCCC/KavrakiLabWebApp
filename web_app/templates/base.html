@@ -66,6 +66,8 @@
 					<div class="col-auto mx-2">
 						<label for="peptide" class="form-label">Peptide</label>
 						<input name="peptide" id="peptide" placeholder="Enter a peptide" value='{{ peptide if peptide else "" }}'/>
+                        <input {% if peptide_regex  == "on" %}checked{% else %}{% endif %} name="peptide-regex" type="checkbox"/>
+                        <label for="peptide-regex" class="form-check-label" id="enablePeptideRegex" >Regex</label>
 					</div>
                 </div>
 				<div class="row g-0 mx-auto my-1">
