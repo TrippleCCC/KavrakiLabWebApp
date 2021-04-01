@@ -89,7 +89,7 @@ def init_download():
     filepaths = []
     for db_id in all_ids:
         query = base_query.where(pdb_files.id == int(db_id)).get_sql()
-        filepaths.append(db.execute(query).fetchone()[0])
+        filepaths.append(db.execute(query).fetchone()["filepath"])
 
     # Begin zip thread
     thread_id = str(uuid.uuid4())

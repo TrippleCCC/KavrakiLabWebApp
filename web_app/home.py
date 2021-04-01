@@ -2,6 +2,8 @@ import time
 import os
 import io
 import zipfile
+import re
+from web_app.util.regex_util import create_peptide_regex, add_bold_tags_to_peptides 
 from pypika import Query, Table
 from flask import (
         Blueprint, render_template, redirect, url_for, request, current_app, jsonify, send_file, flash
@@ -24,8 +26,10 @@ def search():
     peptide = request.form.get("peptide") or "any-peptide"
     binder = request.form.get("binder") or "off"
     non_binder = request.form.get("non-binder") or "off"
+    peptide_regex = request.form.get("peptide-regex") or "off"
     return redirect(
-            url_for(".results", allele=allele, peptide=peptide, binder=binder, non_binder=non_binder))
+            url_for(".results", allele=allele, peptide=peptide, 
+                binder=binder, non_binder=non_binder, peptide_regex=peptide_regex))
 
 
 @bp.route("/results", methods=["GET"])
@@ -37,6 +41,7 @@ def results():
     peptide = request.args.get("peptide")
     binder = request.args.get("binder")
     non_binder = request.args.get("non_binder")
+    peptide_regex = request.args.get("peptide_regex")
 
     # Begin Query building
     pdb_files = Table("pdb_files")
@@ -46,8 +51,14 @@ def results():
 
     # Add WHERE conditions for alleles and peptides
     if allele != "any-allele":
-        query_builder = query_builder.where(pdb_files.allele == allele)
-    if peptide != "any-peptide":
+        # Process list of alleles
+        alleles = list(map(lambda a: a.strip(), allele.split(",")))
+        query_builder = query_builder.where(
+                pdb_files.allele.isin(alleles)
+        )
+        # TODO: if any-peptide is selected, we should have links to 
+        # pre-zipped files for each allele
+    if peptide != "any-peptide" and peptide_regex == "off":
         query_builder = query_builder.where(pdb_files.peptide == peptide)
 
     # Add IN clause for binders
@@ -63,16 +74,29 @@ def results():
         flash(LIMIT_MESSAGE, "warning")
         query_builder = query_builder.limit(2000)
 
+    # Calculate query time
     start = time.time()
+
     data = db.execute(query_builder.get_sql()).fetchall()
+
+    # Filter using regex
+    if peptide_regex == "on":
+        pattern = re.compile(create_peptide_regex(peptide))
+        data = list(filter(lambda x: pattern.match(x["peptide"]) is not None, data))
+
     end = time.time()
+
+    # If we are searching by regex then add b tags to peptide.
+    if peptide_regex == "on":
+        for i in range(len(data)):
+            data[i]["peptide"] = add_bold_tags_to_peptides(peptide, data[i]["peptide"])
 
     query_time = end - start
     num_results = len(data)
 
     return render_template("results.html", results=data, allele=allele, 
             peptide=peptide, num_results=num_results, query_time=query_time,
-            binder=binder, non_binder=non_binder)
+            binder=binder, non_binder=non_binder, peptide_regex=peptide_regex)
 
 
 @bp.route("/suggest/<suggest_type>", methods=["GET"])
@@ -94,6 +118,7 @@ def suggest(suggest_type):
         query_builder = query_builder.select(pdb_files.peptide).distinct() \
                 .where(pdb_files.peptide.like(f"%{query}%"))
 
+    # limit suggestions to 5
     query_builder = query_builder.limit(5)
 
     # Retrive data and reformat
