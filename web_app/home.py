@@ -44,22 +44,22 @@ def results():
     peptide_regex = request.args.get("peptide_regex")
 
     # Begin Query building
-    pdb_files = Table("pdb_files")
-    query_builder = Query.from_(pdb_files).select(
-            pdb_files.id, pdb_files.allele, pdb_files.peptide, 
-            pdb_files.binder, pdb_files.filepath)
+    singleconf_files = Table("singleconf_files")
+    query_builder = Query.from_(singleconf_files).select(
+            singleconf_files.id, singleconf_files.allele, singleconf_files.peptide, 
+            singleconf_files.binder, singleconf_files.filepath)
 
     # Add WHERE conditions for alleles and peptides
     if allele != "any-allele":
         # Process list of alleles
         alleles = list(map(lambda a: a.strip(), allele.split(",")))
         query_builder = query_builder.where(
-                pdb_files.allele.isin(alleles)
+                singleconf_files.allele.isin(alleles)
         )
         # TODO: if any-peptide is selected, we should have links to 
         # pre-zipped files for each allele
     if peptide != "any-peptide" and peptide_regex == "off":
-        query_builder = query_builder.where(pdb_files.peptide == peptide)
+        query_builder = query_builder.where(singleconf_files.peptide == peptide)
 
     # Add IN clause for binders
     binders = []
@@ -67,7 +67,7 @@ def results():
         binders.append(1)
     if non_binder == "on":
         binders.append(0)
-    query_builder = query_builder.where(pdb_files.binder.isin(binders))
+    query_builder = query_builder.where(singleconf_files.binder.isin(binders))
 
     # Add limit if allele and peptide are not specified
     if (allele, peptide) == ("any-allele", "any-peptide"):
@@ -108,16 +108,16 @@ def suggest(suggest_type):
     data = []
 
     # Begin Query building
-    pdb_files = Table("pdb_files")
-    query_builder = Query.from_(pdb_files)
+    singleconf_files = Table("singleconf_files")
+    query_builder = Query.from_(singleconf_files)
 
     # Determine the suggestions based on the suggestion type
     if suggest_type == "allele":
-        query_builder = query_builder.select(pdb_files.allele).distinct() \
-                .where(pdb_files.allele.like(f"%{query}%"))
+        query_builder = query_builder.select(singleconf_files.allele).distinct() \
+                .where(singleconf_files.allele.like(f"%{query}%"))
     elif suggest_type == "peptide":
-        query_builder = query_builder.select(pdb_files.peptide).distinct() \
-                .where(pdb_files.peptide.like(f"%{query}%"))
+        query_builder = query_builder.select(singleconf_files.peptide).distinct() \
+                .where(singleconf_files.peptide.like(f"%{query}%"))
 
     # limit suggestions to 5
     query_builder = query_builder.limit(5)
