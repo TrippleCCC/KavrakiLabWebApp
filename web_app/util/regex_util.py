@@ -1,3 +1,31 @@
+from flask import Blueprint, request, jsonify
+
+
+bp = Blueprint("regex", __name__, url_prefix="/regex")
+
+@bp.route("/check", methods=["GET"])
+def check_regex():
+    PLAIN_SEARCH = "Plain Search"
+    REGEX_SEARCH = "Regex Search"
+
+    # Check if we have a query parameter
+    value = request.args.get("value", None)
+    
+    if not value:
+        return jsonify({"result": PLAIN_SEARCH})
+
+    # pass the query through our regex function
+    regex = create_peptide_regex(value)
+
+    # if it creates a successfull regex, the return regex, otherwise
+    # retrun plain search
+    if regex != "$^":
+        return jsonify({"result": REGEX_SEARCH})
+    
+    # Default return
+    return jsonify({"result": PLAIN_SEARCH})
+    
+
 def create_peptide_regex(query):
     # Split strings into letter position pairs
     pairs = list(map(lambda p: p.strip(), query.split(",")))

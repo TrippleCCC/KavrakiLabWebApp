@@ -32,6 +32,10 @@ def create_app(dev=False):
     from . import download
     app.register_blueprint(download.bp)
 
+    # Add paths for regex ("/regex")
+    from .util import regex_util
+    app.register_blueprint(regex_util.bp)
+
     return app	
 
 if __name__ == "__main__":
