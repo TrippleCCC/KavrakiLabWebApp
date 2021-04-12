@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block results %}
+{% if confirmation_type == "singleconf" %}
 <!-- Modal -->
 <div class="modal fade" id="DownloadModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -82,4 +83,6 @@
 	</tbody>
 </table>
 <script src='{{ url_for("static", filename="js/result_page.js") }}'></script>
+{% elif confirmation_type == "multiconf" %}
+{% endif %}
 {% endblock %}

@@ -92,7 +92,8 @@ def handle_singleconf(allele, peptide, binder, non_binder, peptide_regex, confir
 
     return render_template("results.html", results=data, allele=allele, 
             peptide=peptide, num_results=num_results, query_time=query_time,
-            binder=binder, non_binder=non_binder, peptide_regex=peptide_regex)
+            binder=binder, non_binder=non_binder, peptide_regex=peptide_regex,
+            confirmation_type=confirmation_type)
 
 
 @bp.route("/results", methods=["GET"])
