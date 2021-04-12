@@ -4,7 +4,7 @@ import io
 import zipfile
 import re
 from web_app.util.regex_util import create_peptide_regex, add_bold_tags_to_peptides 
-from pypika import Query, Table
+from pypika import Query, Table, Tables
 from flask import (
         Blueprint, render_template, redirect, url_for, request, current_app, jsonify, send_file, flash
 )
@@ -108,22 +108,24 @@ def suggest(suggest_type):
     data = []
 
     # Begin Query building
-    singleconf_files = Table("singleconf_files")
-    query_builder = Query.from_(singleconf_files)
+    alleles, peptides = Tables("alleles", "peptides")
+    allele_builder = Query.from_(alleles)
+    peptides_builder = Query.from_(peptides)
+    final_query = None
 
     # Determine the suggestions based on the suggestion type
     if suggest_type == "allele":
-        query_builder = query_builder.select(singleconf_files.allele).distinct() \
-                .where(singleconf_files.allele.like(f"%{query}%"))
+        final_query = allele_builder.select(alleles.allele).distinct() \
+                .where(alleles.allele.like(f"%{query}%"))
     elif suggest_type == "peptide":
-        query_builder = query_builder.select(singleconf_files.peptide).distinct() \
-                .where(singleconf_files.peptide.like(f"%{query}%"))
+        final_query = peptides_builder.select(peptides.peptide).distinct() \
+                .where(peptides.peptide.like(f"%{query}%"))
 
     # limit suggestions to 5
-    query_builder = query_builder.limit(5)
+    final_query = final_query.limit(5)
 
     # Retrive data and reformat
-    data = db.execute(query_builder.get_sql()).fetchall()
+    data = db.execute(final_query.get_sql()).fetchall()
     data = list(map(lambda r: {"value":r[suggest_type], "data":r[suggest_type]}, data))
 
     return jsonify({"suggestions":data}) 
