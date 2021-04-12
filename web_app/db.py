@@ -34,6 +34,8 @@ def close_db(e=None):
 
 def init_db():
     db = get_db()
+    alleles = set()
+    peptides = set()
 
     print("Resetting database...")
     with current_app.open_resource("schema.sql") as schema_script:
@@ -61,6 +63,8 @@ def init_db():
         peptide = filename[dash+1:period]
         filepath = f'/rdf_mount/singleconf/all_data/{filename}'
         print(allele, peptide, filepath)
+        alleles.add(tuple([allele]))
+        peptides.add(tuple([peptide]))
         return tuple([allele, peptide, filepath])
 
     print("Converting filenames to rows...")
@@ -110,6 +114,8 @@ def init_db():
         allele = allele_peptide[:dash_index]
         peptide = allele_peptide[dash_index+1:]
         num_files = len([name for name in os.listdir(dirpath)])
+        alleles.add(tuple([allele]))
+        peptides.add(tuple([peptide]))
         return tuple([allele, peptide, dirpath, num_files])
 
     print("Create data rows for multiconf...")
@@ -141,6 +147,16 @@ def init_db():
     c.executemany('''INSERT INTO multiconf_files (allele, peptide, folderpath, num_confirmations, binder) 
             VALUES (?, ?, ?, ?, ?)''', rows)
     print("Inserted all rows!\n")
+
+
+    print("Inserting alleles into database...")
+    c.executemany("INSERT INTO alleles (allele) VALUES (?)", alleles)
+    print("Inserted all alleles!\n")
+
+
+    print("Inserting peptides into database...")
+    c.executemany("INSERT INTO peptides (peptide) VALUES (?)", peptides)
+    print("Inserted all peptides!\n")
 
     db.commit()
 
