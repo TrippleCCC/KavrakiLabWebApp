@@ -34,18 +34,9 @@ def search():
                 confirmation_type=confirmation_type))
 
 
-@bp.route("/results", methods=["GET"])
-def results():
+def handle_singleconf(allele, peptide, binder, non_binder, peptide_regex, confirmation_type):
     db = get_db()
     data = []
-
-    allele = request.args.get("allele")
-    peptide = request.args.get("peptide")
-    binder = request.args.get("binder")
-    non_binder = request.args.get("non_binder")
-    peptide_regex = request.args.get("peptide_regex")
-    confirmation_type = request.args.get("confirmation_type")
-
 
     # Begin Query building
     singleconf_files = Table("singleconf_files")
@@ -102,6 +93,22 @@ def results():
     return render_template("results.html", results=data, allele=allele, 
             peptide=peptide, num_results=num_results, query_time=query_time,
             binder=binder, non_binder=non_binder, peptide_regex=peptide_regex)
+
+
+@bp.route("/results", methods=["GET"])
+def results():
+
+    allele = request.args.get("allele")
+    peptide = request.args.get("peptide")
+    binder = request.args.get("binder")
+    non_binder = request.args.get("non_binder")
+    peptide_regex = request.args.get("peptide_regex")
+    confirmation_type = request.args.get("confirmation_type")
+
+    if confirmation_type == "singleconf":
+        return handle_singleconf(allele, peptide, binder, non_binder, peptide_regex, confirmation_type)
+    else:
+        return ""
 
 
 @bp.route("/suggest/<suggest_type>", methods=["GET"])
