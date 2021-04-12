@@ -84,5 +84,49 @@
 </table>
 <script src='{{ url_for("static", filename="js/result_page.js") }}'></script>
 {% elif confirmation_type == "multiconf" %}
+<h5>Results</h5>
+<p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
+{% with flash_message = get_flashed_messages(category_filter=["warning"]) %}
+	{% if flash_message %}
+        {% for msg in flash_message %}
+            <div class="alert alert-warning" role="alert">
+                ⚠️  {{ msg }} 
+            </div>
+        {% endfor %}
+	{% endif %}
+{% endwith %}
+<table class="table table-striped">
+	<thread>
+		<tr>
+			<th scope="col">Allele</th>
+			<th scope="col">Peptide</th>
+			<th scope="col">Binder</th>
+            <th scope="col">Number of Confirmations</th>
+			<th scope="col">
+                <div class="container d-flex justify-content-center">
+                    Download
+                </div>
+            </th>
+		</tr>
+	</thread>
+	<tbody>
+	{% for row in results %}
+	<tr>
+		<td>{{ row["allele"] }}</td>
+        <td>{{ row["peptide"] | safe}}</td>
+		<td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
+        <td>{{ row["num_confirmations"] }}</td>
+		<td>
+            <div class="container d-flex h-100 justify-content-center">
+                <a href="" class="btn btn-primary">
+                    Download
+                </a>
+            </div>
+        </td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+<script src='{{ url_for("static", filename="js/result_page.js") }}'></script>
 {% endif %}
 {% endblock %}
