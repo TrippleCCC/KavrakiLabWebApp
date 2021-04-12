@@ -4,7 +4,7 @@ import io
 import zipfile
 import re
 from web_app.util.regex_util import create_peptide_regex, add_bold_tags_to_peptides 
-from pypika import Query, Table
+from pypika import Query, Table, Tables
 from flask import (
         Blueprint, render_template, redirect, url_for, request, current_app, jsonify, send_file, flash
 )
@@ -44,22 +44,22 @@ def results():
     peptide_regex = request.args.get("peptide_regex")
 
     # Begin Query building
-    pdb_files = Table("pdb_files")
-    query_builder = Query.from_(pdb_files).select(
-            pdb_files.id, pdb_files.allele, pdb_files.peptide, 
-            pdb_files.binder, pdb_files.filepath)
+    singleconf_files = Table("singleconf_files")
+    query_builder = Query.from_(singleconf_files).select(
+            singleconf_files.id, singleconf_files.allele, singleconf_files.peptide, 
+            singleconf_files.binder, singleconf_files.filepath)
 
     # Add WHERE conditions for alleles and peptides
     if allele != "any-allele":
         # Process list of alleles
         alleles = list(map(lambda a: a.strip(), allele.split(",")))
         query_builder = query_builder.where(
-                pdb_files.allele.isin(alleles)
+                singleconf_files.allele.isin(alleles)
         )
         # TODO: if any-peptide is selected, we should have links to 
         # pre-zipped files for each allele
     if peptide != "any-peptide" and peptide_regex == "off":
-        query_builder = query_builder.where(pdb_files.peptide == peptide)
+        query_builder = query_builder.where(singleconf_files.peptide == peptide)
 
     # Add IN clause for binders
     binders = []
@@ -67,7 +67,7 @@ def results():
         binders.append(1)
     if non_binder == "on":
         binders.append(0)
-    query_builder = query_builder.where(pdb_files.binder.isin(binders))
+    query_builder = query_builder.where(singleconf_files.binder.isin(binders))
 
     # Add limit if allele and peptide are not specified
     if (allele, peptide) == ("any-allele", "any-peptide"):
@@ -108,22 +108,24 @@ def suggest(suggest_type):
     data = []
 
     # Begin Query building
-    pdb_files = Table("pdb_files")
-    query_builder = Query.from_(pdb_files)
+    alleles, peptides = Tables("alleles", "peptides")
+    allele_builder = Query.from_(alleles)
+    peptides_builder = Query.from_(peptides)
+    final_query = None
 
     # Determine the suggestions based on the suggestion type
     if suggest_type == "allele":
-        query_builder = query_builder.select(pdb_files.allele).distinct() \
-                .where(pdb_files.allele.like(f"%{query}%"))
+        final_query = allele_builder.select(alleles.allele).distinct() \
+                .where(alleles.allele.like(f"%{query}%"))
     elif suggest_type == "peptide":
-        query_builder = query_builder.select(pdb_files.peptide).distinct() \
-                .where(pdb_files.peptide.like(f"%{query}%"))
+        final_query = peptides_builder.select(peptides.peptide).distinct() \
+                .where(peptides.peptide.like(f"%{query}%"))
 
     # limit suggestions to 5
-    query_builder = query_builder.limit(5)
+    final_query = final_query.limit(5)
 
     # Retrive data and reformat
-    data = db.execute(query_builder.get_sql()).fetchall()
+    data = db.execute(final_query.get_sql()).fetchall()
     data = list(map(lambda r: {"value":r[suggest_type], "data":r[suggest_type]}, data))
 
     return jsonify({"suggestions":data}) 

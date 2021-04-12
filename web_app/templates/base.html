@@ -66,20 +66,38 @@
 					<div class="col-auto mx-2">
 						<label for="peptide" class="form-label">Peptide</label>
 						<input name="peptide" id="peptide" placeholder="Enter a peptide" value='{{ peptide if peptide else "" }}'/>
-                        <input {% if peptide_regex  == "on" %}checked{% else %}{% endif %} name="peptide-regex" type="checkbox"/>
-                        <label for="peptide-regex" class="form-check-label" id="enablePeptideRegex" >Regex</label>
+                        <input type="hidden" name="peptide-regex" id="peptide-regex" value='{{ peptide_regex if peptide_regex else "" }}'/>
+                        <label for="peptide-regex" class="form-check-label badge bg-warning text-dark" id="peptide-search-type">
+                        {% if peptide_regex == "on" %}
+                            Regex Search
+                        {% else %}
+                            Plain Search
+                        {% endif %}
+                        </label>
 					</div>
                 </div>
-				<div class="row g-0 mx-auto my-1">
-					<div class="col-auto form-check mx-2">
+                <div class="row g-0 mx-auto my-1">
+                    Binder Type:
+                    <div class="col-auto form-check mx-2">
                         <input {% if binder == "on" %}checked{% else %}{% endif %} id="binder" type="checkbox" class="form-check-input" name="binder"/>
-						<label class="form-check-label" for="binder">Binder</label>
-					</div>
-					<div class="col-auto form-check mx-2">
-						<input {% if non_binder == "on" %}checked{% else %}{% endif %} id="non-binder" type="checkbox" class="form-check-input" name="non-binder"/>
-						<label class="form-check-label" for="non-binder">Non-binder</label>
-					</div>
+                        <label class="form-check-label" for="binder">Binder</label>
+                    </div>
+                    <div class="col-auto form-check mx-2">
+                        <input {% if non_binder == "on" %}checked{% else %}{% endif %} id="non-binder" type="checkbox" class="form-check-input" name="non-binder"/>
+                        <label class="form-check-label" for="non-binder">Non-binder</label>
+                    </div>
                 </div>
+				<div class="row g-0 mx-auto my-2">
+                    Confirmation Type:
+					<div class="col-auto mx-2">
+						<input class="form-check-input" id="single-confimation-type" type="radio" name="confimation-type" checked/>
+						<label class="form-check-label" for="single-confirmation-type">Single-Conf</label>
+					</div>
+					<div class="col-auto mx-2">
+						<input class="form-check-input" id="single-confirmation-type" type="radio" name="confimation-type"/>
+						<label class="form-check-label" for="multi-confirmation-type">Multi-Conf</label>
+					</div>
+				</div>
 				<div class="row g-0 mx-auto my-2">
 					<div class="col-auto mx-1">
 						<input class="btn btn-outline-success" type="submit" value="search">

@@ -81,14 +81,14 @@ def init_download():
     if not all_ids:
         return "", 403
 
-    pdb_files = Table("pdb_files")
-    base_query = Query.from_(pdb_files).select(pdb_files.filepath)
+    singleconf_files = Table("singleconf_files")
+    base_query = Query.from_(singleconf_files).select(singleconf_files.filepath)
 
     # Get all the file paths for the ids 
     db = get_db()
     filepaths = []
     for db_id in all_ids:
-        query = base_query.where(pdb_files.id == int(db_id)).get_sql()
+        query = base_query.where(singleconf_files.id == int(db_id)).get_sql()
         filepaths.append(db.execute(query).fetchone()["filepath"])
 
     # Begin zip thread

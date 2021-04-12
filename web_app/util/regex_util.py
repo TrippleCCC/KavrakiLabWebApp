@@ -1,3 +1,4 @@
+
 def create_peptide_regex(query):
     # Split strings into letter position pairs
     pairs = list(map(lambda p: p.strip(), query.split(",")))
