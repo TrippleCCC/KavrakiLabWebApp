@@ -27,9 +27,11 @@ def search():
     binder = request.form.get("binder") or "off"
     non_binder = request.form.get("non-binder") or "off"
     peptide_regex = request.form.get("peptide-regex") or "off"
+    confirmation_type = request.form.get("confirmation-type")
     return redirect(
             url_for(".results", allele=allele, peptide=peptide, 
-                binder=binder, non_binder=non_binder, peptide_regex=peptide_regex))
+                binder=binder, non_binder=non_binder, peptide_regex=peptide_regex,
+                confirmation_type=confirmation_type))
 
 
 @bp.route("/results", methods=["GET"])
@@ -42,6 +44,8 @@ def results():
     binder = request.args.get("binder")
     non_binder = request.args.get("non_binder")
     peptide_regex = request.args.get("peptide_regex")
+    confirmation_type = request.args.get("confirmation_type")
+
 
     # Begin Query building
     singleconf_files = Table("singleconf_files")
