@@ -19,6 +19,7 @@ LIMIT_MESSAGE = "Results have been limited to 2000 for all-allele, all-pepetide 
 def home():
     return render_template("base.html", allele=None)
 
+
 @bp.route("/search", methods=["POST"])
 def search():
     # Handle query parameters. Then redirect.
