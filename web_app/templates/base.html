@@ -90,11 +90,13 @@
 				<div class="row g-0 mx-auto my-2">
                     Confirmation Type:
 					<div class="col-auto mx-2">
-						<input class="form-check-input" id="single-confirmation-type" type="radio" name="confirmation-type" value="singleconf" checked/>
+						<input class="form-check-input" id="single-confirmation-type" type="radio" name="confirmation-type" value="singleconf" 
+                                                                                                                            {% if confirmation_type == "singleconf" %}checked{% endif %}/>
 						<label class="form-check-label" for="single-confirmation-type">Single-Conf</label>
 					</div>
 					<div class="col-auto mx-2">
-						<input class="form-check-input" id="single-confirmation-type" type="radio" name="confirmation-type" value="multiconf"/>
+						<input class="form-check-input" id="single-confirmation-type" type="radio" name="confirmation-type" value="multiconf" 
+                         {% if confirmation_type == "multiconf" %}checked{% endif %}/>
 						<label class="form-check-label" for="multi-confirmation-type">Multi-Conf</label>
 					</div>
 				</div>
