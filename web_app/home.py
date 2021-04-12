@@ -27,9 +27,11 @@ def search():
     binder = request.form.get("binder") or "off"
     non_binder = request.form.get("non-binder") or "off"
     peptide_regex = request.form.get("peptide-regex") or "off"
+    confirmation_type = request.form.get("confirmation-type")
     return redirect(
             url_for(".results", allele=allele, peptide=peptide, 
-                binder=binder, non_binder=non_binder, peptide_regex=peptide_regex))
+                binder=binder, non_binder=non_binder, peptide_regex=peptide_regex,
+                confirmation_type=confirmation_type))
 
 
 @bp.route("/results", methods=["GET"])
@@ -42,24 +44,38 @@ def results():
     binder = request.args.get("binder")
     non_binder = request.args.get("non_binder")
     peptide_regex = request.args.get("peptide_regex")
+    confirmation_type = request.args.get("confirmation_type")
 
     # Begin Query building
-    singleconf_files = Table("singleconf_files")
-    query_builder = Query.from_(singleconf_files).select(
-            singleconf_files.id, singleconf_files.allele, singleconf_files.peptide, 
-            singleconf_files.binder, singleconf_files.filepath)
+    if confirmation_type == "singleconf":
+        singleconf_files = Table("singleconf_files")
+        query_builder = Query.from_(singleconf_files).select(
+                singleconf_files.id, singleconf_files.allele, singleconf_files.peptide, 
+                singleconf_files.binder, singleconf_files.filepath)
+    elif confirmation_type == "multiconf":
+        multiconf_files = Table("multiconf_files")
+        query_builder = Query.from_(multiconf_files).select(
+                multiconf_files.allele, multiconf_files.peptide, 
+                multiconf_files.binder, multiconf_files.num_confirmations)
 
     # Add WHERE conditions for alleles and peptides
     if allele != "any-allele":
         # Process list of alleles
         alleles = list(map(lambda a: a.strip(), allele.split(",")))
-        query_builder = query_builder.where(
-                singleconf_files.allele.isin(alleles)
-        )
+        if confirmation_type == "singleconf":
+            query_builder = query_builder.where(
+                    singleconf_files.allele.isin(alleles))
+        elif confirmation_type == "multiconf":
+            query_builder = query_builder.where(
+                    multiconf_files.allele.isin(alleles))
         # TODO: if any-peptide is selected, we should have links to 
         # pre-zipped files for each allele
     if peptide != "any-peptide" and peptide_regex == "off":
-        query_builder = query_builder.where(singleconf_files.peptide == peptide)
+        if confirmation_type == "singleconf":
+            query_builder = query_builder.where(singleconf_files.peptide == peptide)
+        elif confirmation_type == "multiconf":
+            query_builder = query_builder.where(multiconf_files.peptide == peptide)
+
 
     # Add IN clause for binders
     binders = []
@@ -67,7 +83,11 @@ def results():
         binders.append(1)
     if non_binder == "on":
         binders.append(0)
-    query_builder = query_builder.where(singleconf_files.binder.isin(binders))
+
+    if confirmation_type == "singleconf":
+        query_builder = query_builder.where(singleconf_files.binder.isin(binders))
+    elif confirmation_type == "multiconf":
+        query_builder = query_builder.where(multiconf_files.binder.isin(binders))
 
     # Add limit if allele and peptide are not specified
     if (allele, peptide) == ("any-allele", "any-peptide"):
@@ -97,7 +117,8 @@ def results():
 
     return render_template("results.html", results=data, allele=allele, 
             peptide=peptide, num_results=num_results, query_time=query_time,
-            binder=binder, non_binder=non_binder, peptide_regex=peptide_regex)
+            binder=binder, non_binder=non_binder, peptide_regex=peptide_regex,
+            confirmation_type=confirmation_type)
 
 
 @bp.route("/suggest/<suggest_type>", methods=["GET"])
