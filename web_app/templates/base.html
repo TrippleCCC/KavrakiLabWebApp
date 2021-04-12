@@ -107,6 +107,15 @@
 				</div>
 			</form>
 
+            {% with messages = get_flashed_messages(category_filter=["errors"]) %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-danger" role="alert">
+                    ⛔️ {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
 
 			<div class="container">
 			{% block results %}{% endblock %}

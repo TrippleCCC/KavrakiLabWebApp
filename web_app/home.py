@@ -28,6 +28,11 @@ def search():
     non_binder = request.form.get("non-binder") or "off"
     peptide_regex = request.form.get("peptide-regex") or "off"
     confirmation_type = request.form.get("confirmation-type")
+
+    if not confirmation_type:
+        flash("Please select Confirmation type.", "errors")
+        return redirect(url_for(".home"))
+
     return redirect(
             url_for(".results", allele=allele, peptide=peptide, 
                 binder=binder, non_binder=non_binder, peptide_regex=peptide_regex,
