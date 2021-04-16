@@ -52,6 +52,13 @@ def results():
     peptide_regex = request.args.get("peptide_regex")
     confirmation_type = request.args.get("confirmation_type")
 
+    # Ordering parameters
+    order_allele = request.args.get("order_allele")
+    order_peptide = request.args.get("order_peptide")
+    order_binder = request.args.get("order_binder")
+    order_conf = request.args.get("order_conf")
+    
+
     # Begin Query building
     if confirmation_type == "singleconf":
         singleconf_files = Table("singleconf_files")
