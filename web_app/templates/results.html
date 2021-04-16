@@ -42,9 +42,30 @@
 <table class="table table-striped">
 	<thread>
 		<tr>
-			<th scope="col">Allele</th>
-			<th scope="col">Peptide</th>
-			<th scope="col">Binder</th>
+            <th scope="col">Allele 
+                <a href='{{ order_urls["allele_asc"] }}'>
+                    <i class="bi bi-arrow-down"></i>
+                </a>
+                <a href='{{ order_urls["allele_desc"] }}'>
+                    <i class="bi bi-arrow-up"></i>
+                </a>
+            </th>
+            <th scope="col">Peptide 
+                <a href='{{ order_urls["peptide_asc"] }}'>
+                    <i class="bi bi-arrow-down"></i>
+                </a>
+                <a href='{{ order_urls["peptide_desc"] }}'>
+                    <i class="bi bi-arrow-up"></i>
+                </a>
+            </th>
+            <th scope="col">Binder 
+                <a href='{{ order_urls["binder_asc"] }}'>
+                    <i class="bi bi-arrow-down"></i>
+                </a>
+                <a href='{{ order_urls["binder_desc"] }}'>
+                    <i class="bi bi-arrow-up"></i>
+                </a>
+            </th>
 			<th scope="col">
                 <div class="container d-flex justify-content-center">
                     Download
@@ -98,10 +119,38 @@
 <table class="table table-striped">
 	<thread>
 		<tr>
-			<th scope="col">Allele</th>
-			<th scope="col">Peptide</th>
-			<th scope="col">Binder</th>
-            <th scope="col">Number of Confirmations</th>
+			<th scope="col">Allele
+                <a href='{{ order_urls["allele_asc"] }}'>
+                    <i class="bi bi-arrow-down"></i>
+                </a>
+                <a href='{{ order_urls["allele_desc"] }}'>
+                    <i class="bi bi-arrow-up"></i>
+                </a>
+            </th>
+			<th scope="col">Peptide
+                <a href='{{ order_urls["peptide_asc"] }}'>
+                    <i class="bi bi-arrow-down"></i>
+                </a>
+                <a href='{{ order_urls["peptide_desc"] }}'>
+                    <i class="bi bi-arrow-up"></i>
+                </a>
+            </th>
+			<th scope="col">Binder
+                <a href='{{ order_urls["binder_asc"] }}'>
+                    <i class="bi bi-arrow-down"></i>
+                </a>
+                <a href='{{ order_urls["binder_desc"] }}'>
+                    <i class="bi bi-arrow-up"></i>
+                </a>
+            </th>
+            <th scope="col">Number of Confirmations
+                <a href='{{ order_urls["num_confirmations_asc"] }}'>
+                    <i class="bi bi-arrow-down"></i>
+                </a>
+                <a href='{{ order_urls["num_confirmations_desc"] }}'>
+                    <i class="bi bi-arrow-up"></i>
+                </a>
+            </th>
 			<th scope="col">
                 <div class="container d-flex justify-content-center">
                     Download

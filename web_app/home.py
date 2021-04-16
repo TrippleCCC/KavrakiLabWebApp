@@ -4,7 +4,7 @@ import io
 import zipfile
 import re
 from web_app.util.regex_util import create_peptide_regex, add_bold_tags_to_peptides 
-from pypika import Query, Table, Tables
+from pypika import Query, Table, Tables, Order
 from flask import (
         Blueprint, render_template, redirect, url_for, request, current_app, jsonify, send_file, flash
 )
@@ -52,6 +52,13 @@ def results():
     peptide_regex = request.args.get("peptide_regex")
     confirmation_type = request.args.get("confirmation_type")
 
+    # Ordering parameters
+    order_allele = request.args.get("order_allele")
+    order_peptide = request.args.get("order_peptide")
+    order_binder = request.args.get("order_binder")
+    order_conf = request.args.get("order_conf")
+    
+
     # Begin Query building
     if confirmation_type == "singleconf":
         singleconf_files = Table("singleconf_files")
@@ -95,6 +102,45 @@ def results():
     elif confirmation_type == "multiconf":
         query_builder = query_builder.where(multiconf_files.binder.isin(binders))
 
+
+    # apply ordering to resutls
+    if confirmation_type == "singleconf":
+        if order_allele == "asc":
+            query_builder = query_builder.orderby(singleconf_files.allele, order=Order.asc)
+        elif order_allele == "desc":
+            query_builder = query_builder.orderby(singleconf_files.allele, order=Order.desc)
+
+        if order_peptide == "asc":
+            query_builder = query_builder.orderby(singleconf_files.peptide, order=Order.asc)
+        elif order_peptide == "desc":
+            query_builder = query_builder.orderby(singleconf_files.peptide, order=Order.desc)
+
+        if order_binder == "asc":
+            query_builder = query_builder.orderby(singleconf_files.binder, order=Order.asc)
+        elif order_binder == "desc":
+            query_builder = query_builder.orderby(singleconf_files.binder, order=Order.desc)
+    elif confirmation_type == "multiconf":
+        if order_conf == "asc":
+            query_builder = query_builder.orderby(multiconf_files.num_confirmations, order=Order.asc)
+        elif order_conf == "desc":
+            query_builder = query_builder.orderby(multiconf_files.num_confirmations, order=Order.desc)
+
+        if order_allele == "asc":
+            query_builder = query_builder.orderby(multiconf_files.allele, order=Order.asc)
+        elif order_allele == "desc":
+            query_builder = query_builder.orderby(multiconf_files.allele, order=Order.desc)
+
+        if order_peptide == "asc":
+            query_builder = query_builder.orderby(multiconf_files.peptide, order=Order.asc)
+        elif order_peptide == "desc":
+            query_builder = query_builder.orderby(multiconf_files.peptide, order=Order.desc)
+
+        if order_binder == "asc":
+            query_builder = query_builder.orderby(multiconf_files.binder, order=Order.asc)
+        elif order_binder == "desc":
+            query_builder = query_builder.orderby(multiconf_files.binder, order=Order.desc)
+
+
     # Add limit if allele and peptide are not specified
     if (allele, peptide) == ("any-allele", "any-peptide"):
         flash(LIMIT_MESSAGE, "warning")
@@ -121,10 +167,29 @@ def results():
     query_time = end - start
     num_results = len(data)
 
+
+    # Generate order urls
+    parameters = {
+            "allele": allele, "peptide": peptide, "binder": binder,
+            "non_binder": non_binder, "peptide_regex": peptide_regex,
+            "confirmation_type": confirmation_type
+            }
+    order_urls = {
+            "allele_asc": url_for(".results", order_allele="asc", **parameters),
+            "allele_desc": url_for(".results", order_allele="desc", **parameters),
+            "peptide_asc": url_for(".results", order_peptide="asc", **parameters),
+            "peptide_desc": url_for(".results", order_peptide="desc", **parameters),
+            "binder_asc": url_for(".results", order_binder="asc", **parameters),
+            "binder_desc": url_for(".results", order_binder="desc", **parameters)
+            }
+    if confirmation_type == "multiconf":
+        order_urls["num_confirmations_asc"] = url_for(".results", order_conf="asc", **parameters)
+        order_urls["num_confirmations_desc"] = url_for(".results", order_conf="desc", **parameters)
+
     return render_template("results.html", results=data, allele=allele, 
             peptide=peptide, num_results=num_results, query_time=query_time,
             binder=binder, non_binder=non_binder, peptide_regex=peptide_regex,
-            confirmation_type=confirmation_type)
+            confirmation_type=confirmation_type, order_urls=order_urls)
 
 
 @bp.route("/suggest/<suggest_type>", methods=["GET"])
