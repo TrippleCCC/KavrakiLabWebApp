@@ -76,20 +76,45 @@ def init_download():
     global thread_table
     global thread_progress
 
-    # Get the file paths from the request.
-    all_ids = request.json["ids"]
-    if not all_ids:
+    
+    download_type = request.json["downloadType"]
+    if not download_type:
         return "", 403
 
-    singleconf_files = Table("singleconf_files")
-    base_query = Query.from_(singleconf_files).select(singleconf_files.filepath)
-
-    # Get all the file paths for the ids 
-    db = get_db()
     filepaths = []
-    for db_id in all_ids:
-        query = base_query.where(singleconf_files.id == int(db_id)).get_sql()
-        filepaths.append(db.execute(query).fetchone()["filepath"])
+
+    if download_type == "singleconf":
+        # Get the file paths from the request.
+        all_ids = request.json["ids"]
+        if not all_ids:
+            return "", 403
+
+        singleconf_files = Table("singleconf_files")
+        base_query = Query.from_(singleconf_files).select(singleconf_files.filepath)
+
+        # Get all the file paths for the ids 
+        db = get_db()
+        for db_id in all_ids:
+            query = base_query.where(singleconf_files.id == int(db_id)).get_sql()
+            filepaths.append(db.execute(query).fetchone()["filepath"])
+    elif download_type == "multiconf":
+
+        id = request.json["id"]
+        if not id:
+            return "", 403
+
+        # Get the folder path for the id
+        multiconf_files = Table("multiconf_files")
+        base_query = Query.from_(multiconf_files).select(multiconf_files.folderpath) \
+                .where(multiconf_files.id == id)
+
+        db = get_db()
+        dir = db.execute(base_query.get_sql()).fetchone()["folderpath"]
+
+        # Get the file paths for the multiconf files
+        for root, _, files in os.walk(os.path.abspath(dir)):
+            for file in files:
+                filepaths.append(os.path.join(root, file))
 
     # Begin zip thread
     thread_id = str(uuid.uuid4())

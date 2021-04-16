@@ -1,12 +1,12 @@
 // Define function for periodically checking download progress
-async function init_ping_download(data) {
+async function init_ping_download(file_id) {
     // First make a request to init the download
     const response = await fetch("/download/init", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({"downloadType": "singleconf", "ids": data})
+        body: JSON.stringify({"downloadType": "multiconf", "id": file_id})
     });
 
     const data2 = await response.json();
@@ -87,31 +87,11 @@ async function init_ping_download(data) {
     setTimeout(ping_loop, 1000);
 }
 
-// Behavior for the select all button
-$("#select-all").click(function(event) {
-    if (this.checked) {
-        $(".selection-item").each(function(event) {
-                this.checked = true;
-        });
-    } else {
-        $(".selection-item").each(function(event) {
-                this.checked = false;
-        });
-    }
-});
-
-// Functionality for Download select button
-$("#download-selected").click(function(event) {
-    let data = $(".selection-item").filter(function() {
-        return this.checked;
-    }).map(function() {
-        return this.value;
-    }).get();
+// Functionality for Download button
+$(".downloadButton").click(function(event) {
+    // Get the id value from the button
     
-    if (data.length === 0) {
-        alert("No files selected");
-        return;
-    }
+    const id = event.target.value;
 
     // Open download modal and Init zip download
     $(".progress-bar").css("width", "0%");
@@ -119,5 +99,5 @@ $("#download-selected").click(function(event) {
     $("#close-button").prop("disabled", true);
     $("#cancel-download").prop("disabled", false);
     $('#DownloadModal').modal({show: true});
-    init_ping_download(data);
+    init_ping_download(id);
 });

@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block results %}
-{% if confirmation_type == "singleconf" %}
 <!-- Modal -->
 <div class="modal fade" id="DownloadModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -28,6 +27,7 @@
         </div>
     </div>
 </div>
+{% if confirmation_type == "singleconf" %}
 <h5>Results</h5>
 <p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
 {% with flash_message = get_flashed_messages(category_filter=["warning"]) %}
@@ -118,7 +118,7 @@
         <td>{{ row["num_confirmations"] }}</td>
 		<td>
             <div class="container d-flex h-100 justify-content-center">
-                <button value='{{ row["id"] }}' class=".downloadButton btn btn-primary">
+                <button value='{{ row["id"] }}' class="downloadButton btn btn-primary">
                     Download
                 </button>
             </div>
@@ -127,6 +127,6 @@
 	{% endfor %}
 	</tbody>
 </table>
-<script src='{{ url_for("static", filename="js/result_page.js") }}'></script>
+<script src='{{ url_for("static", filename="js/multiconf_results_page.js") }}'></script>
 {% endif %}
 {% endblock %}
