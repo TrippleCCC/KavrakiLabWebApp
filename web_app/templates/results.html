@@ -82,7 +82,7 @@
 	{% endfor %}
 	</tbody>
 </table>
-<script src='{{ url_for("static", filename="js/result_page.js") }}'></script>
+<script src='{{ url_for("static", filename="js/singleconf_results_page.js") }}'></script>
 {% elif confirmation_type == "multiconf" %}
 <h5>Results</h5>
 <p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
