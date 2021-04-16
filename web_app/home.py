@@ -61,7 +61,7 @@ def results():
     elif confirmation_type == "multiconf":
         multiconf_files = Table("multiconf_files")
         query_builder = Query.from_(multiconf_files).select(
-                multiconf_files.allele, multiconf_files.peptide, 
+                multiconf_files.id, multiconf_files.allele, multiconf_files.peptide, 
                 multiconf_files.binder, multiconf_files.num_confirmations)
 
     # Add WHERE conditions for alleles and peptides
