@@ -88,7 +88,7 @@ async function init_ping_download(data) {
 }
 
 // Behavior for the select all button
-$("#select-all").click(function(event) {
+$(".select-all").click(function(event) {
     if (this.checked) {
         $(".selection-item").each(function(event) {
                 this.checked = true;
@@ -101,7 +101,7 @@ $("#select-all").click(function(event) {
 });
 
 // Functionality for Download select button
-$("#download-selected").click(function(event) {
+$(".download-selected").click(function(event) {
     let data = $(".selection-item").filter(function() {
         return this.checked;
     }).map(function() {
@@ -120,4 +120,27 @@ $("#download-selected").click(function(event) {
     $("#cancel-download").prop("disabled", false);
     $('#DownloadModal').modal({show: true});
     init_ping_download(data);
+});
+
+$(".dev-dots").slick({});
+
+$(".pages").slick({
+    dots: true,
+    appendDots: ".dots-area",
+    dotsClass: "nav-dots",
+    infinite: false, 
+    prevArrow: ".prev-page",
+    nextArrow: ".next-page"
+});
+
+$(".pages").on("afterChange", function(event, slick, currentSlide) {
+    console.log(slick);
+    console.log(currentSlide);
+    console.log("Page " + currentSlide + " out of " + slick.slideCount);
+    $(".page-index").html("Page " + (currentSlide + 1) + " out of " + slick.slideCount);
+});
+
+$(document).ready(function() {
+    $("#results-loading").css("visibility", "hidden");
+    $(".results-area").css("visibility", "visible");
 });

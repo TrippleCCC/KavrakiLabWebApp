@@ -1,0 +1,52 @@
+.nav-dots {
+    list-style-type: none;
+    display: flex;
+}
+
+.dots-area {
+    overflow-x: scroll;
+}
+
+.slick-dots {
+}
+
+.nav-dots li {
+    margin: 0;
+    padding: 0;
+    padding-right: 1em;
+}
+
+.nav-dots button {
+    border: none;
+    color: white;
+    background-color: black;
+    border-radius: .5em;
+}
+
+.autocomplete-suggestions {
+    background: #FFF;
+    border: 1px solid #000;
+}
+
+.autocomplete-suggestion {
+    color: #000;
+}
+
+.autocomplete-selected {
+    background: #A0A3A1;
+}
+
+#advanced-menu {
+    visibility: hidden;
+    display: none;
+}
+
+#advanced-toggle:focus {
+    outline: none;
+    border: none;
+}
+
+#advanced-toggle:active {
+    outline: none;
+    border: none;
+}
