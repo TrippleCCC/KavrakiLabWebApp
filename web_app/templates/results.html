@@ -156,6 +156,14 @@
                     Download
                 </div>
             </th>
+            <th scope="col">
+                <div class="container d-flex justify-content-center">
+                    <button id="download-selected" class="btn btn-link">Download Selected</button>
+                </div>
+                <div class="container d-flex justify-content-center">
+                    <input type="checkbox" id="select-all" />
+                </div>
+            </th>
 		</tr>
 	</thread>
 	<tbody>
@@ -170,6 +178,11 @@
                 <button value='{{ row["id"] }}' class="downloadButton btn btn-primary">
                     Download
                 </button>
+            </div>
+        </td>
+        <td>
+            <div class="container d-flex h-100 justify-content-center">
+                <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["id"] }}"/>
             </div>
         </td>
 	</tr>

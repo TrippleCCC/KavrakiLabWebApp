@@ -1,13 +1,25 @@
 // Define function for periodically checking download progress
 async function init_ping_download(file_id) {
-    // First make a request to init the download
-    const response = await fetch("/download/init", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({"downloadType": "multiconf", "id": file_id})
-    });
+    var response;
+
+    if (Array.isArray(file_id)) {
+        response = await fetch("/download/init", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({"downloadType": "multiconf", "ids": file_id})
+        });
+    } else {
+        // First make a request to init the download
+        response = await fetch("/download/init", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({"downloadType": "multiconf", "id": file_id})
+        });
+    }
 
     const data2 = await response.json();
     console.log(data2);
@@ -87,6 +99,19 @@ async function init_ping_download(file_id) {
     setTimeout(ping_loop, 1000);
 }
 
+// Behavior for the select all button
+$("#select-all").click(function(event) {
+    if (this.checked) {
+        $(".selection-item").each(function(event) {
+                this.checked = true;
+        });
+    } else {
+        $(".selection-item").each(function(event) {
+                this.checked = false;
+        });
+    }
+});
+
 // Functionality for Download button
 $(".downloadButton").click(function(event) {
     // Get the id value from the button
@@ -100,4 +125,26 @@ $(".downloadButton").click(function(event) {
     $("#cancel-download").prop("disabled", false);
     $('#DownloadModal').modal({show: true});
     init_ping_download(id);
+});
+
+$("#download-selected").click(function(event) {
+    // Get all the ids
+    let ids = $(".selection-item").filter(function() {
+        return this.checked;
+    }).map(function() {
+        return this.value;
+    }).get();
+    
+    if (ids.length === 0) {
+        alert("No files selected");
+        return;
+    }
+
+    // Open download modal and Init zip download
+    $(".progress-bar").css("width", "0%");
+    $("#loading-status").html("");
+    $("#close-button").prop("disabled", true);
+    $("#cancel-download").prop("disabled", false);
+    $('#DownloadModal').modal({show: true});
+    init_ping_download(ids);
 });
