@@ -31,11 +31,12 @@ class ZipProgress():
 
 # Thread class for zipping files.
 class ZipThread(threading.Thread):
-    def __init__(self, thread_id, filepaths):
+    def __init__(self, thread_id, filepaths, separate_files=False):
         self.thread_id = thread_id
         self.result = None
         self.filepaths = filepaths
         self.stop_event = threading.Event()
+        self.separate_files = separate_files
         super().__init__()
 
     def stop(self):
@@ -46,8 +47,12 @@ class ZipThread(threading.Thread):
         zip_file = io.BytesIO()
         with zipfile.ZipFile(zip_file, "w") as zf:
             for filepath in self.filepaths:
-                zf.write(filepath, compress_type=zipfile.ZIP_DEFLATED, 
-                        arcname=os.path.basename(filepath))
+                if self.separate_files:
+                    arcname = "/".join(filepath.split("/")[-2:])
+                    zf.write(filepath, compress_type=zipfile.ZIP_DEFLATED, arcname=arcname)
+                else:
+                    arcname = os.path.basename(filepath)
+                    zf.write(filepath, compress_type=zipfile.ZIP_DEFLATED, arcname=arcname)
                 try:
                     thread_progress[self.thread_id].increment_progress()
                 except KeyError:
@@ -82,6 +87,7 @@ def init_download():
         return "", 403
 
     filepaths = []
+    separate_files = False
 
     if download_type == "singleconf":
         # Get the file paths from the request.
@@ -98,27 +104,43 @@ def init_download():
             query = base_query.where(singleconf_files.id == int(db_id)).get_sql()
             filepaths.append(db.execute(query).fetchone()["filepath"])
     elif download_type == "multiconf":
+        ids = request.json.get("ids")
 
-        id = request.json["id"]
-        if not id:
-            return "", 403
+        if not ids:
+            id = request.json.get("id")
+            if not id:
+                return "", 403
 
-        # Get the folder path for the id
-        multiconf_files = Table("multiconf_files")
-        base_query = Query.from_(multiconf_files).select(multiconf_files.folderpath) \
-                .where(multiconf_files.id == id)
+            # Get the folder path for the id
+            multiconf_files = Table("multiconf_files")
+            base_query = Query.from_(multiconf_files).select(multiconf_files.folderpath) \
+                    .where(multiconf_files.id == id)
 
-        db = get_db()
-        dir = db.execute(base_query.get_sql()).fetchone()["folderpath"]
+            db = get_db()
+            dir = db.execute(base_query.get_sql()).fetchone()["folderpath"]
 
-        # Get the file paths for the multiconf files
-        for root, _, files in os.walk(os.path.abspath(dir)):
-            for file in files:
-                filepaths.append(os.path.join(root, file))
+            # Get the file paths for the multiconf files
+            for root, _, files in os.walk(os.path.abspath(dir)):
+                for file in files:
+                    filepaths.append(os.path.join(root, file))
+        else:
+            multiconf_files = Table("multiconf_files")
+            base_query = Query.from_(multiconf_files).select(multiconf_files.folderpath) \
+                    .where(multiconf_files.id.isin(ids))
+
+            db = get_db()
+            dirs = list(map(lambda x: x["folderpath"], db.execute(base_query.get_sql()).fetchall()))
+
+            for dir in dirs:
+                for root, _, files in os.walk(os.path.abspath(dir)):
+                    for file in files:
+                        filepaths.append(os.path.join(root, file))
+
+            separate_files = True
 
     # Begin zip thread
     thread_id = str(uuid.uuid4())
-    thread_table[thread_id] = ZipThread(thread_id, filepaths)
+    thread_table[thread_id] = ZipThread(thread_id, filepaths, separate_files=separate_files)
     thread_progress[thread_id] = ZipProgress(len(filepaths))
     thread_table[thread_id].start()
 
