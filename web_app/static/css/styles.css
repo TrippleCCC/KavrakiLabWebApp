@@ -1,0 +1,24 @@
+.nav-dots {
+    list-style-type: none;
+    display: flex;
+}
+
+.dots-area {
+    overflow-x: scroll;
+}
+
+.slick-dots {
+}
+
+.nav-dots li {
+    margin: 0;
+    padding: 0;
+    padding-right: 1em;
+}
+
+.nav-dots button {
+    border: none;
+    color: white;
+    background-color: black;
+    border-radius: .5em;
+}

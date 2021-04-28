@@ -150,6 +150,9 @@ $("#download-selected").click(function(event) {
 });
 
 $(".pages").slick({
+    dots: true,
+    appendDots: ".dots-area",
+    dotsClass: "nav-dots",
     infinite: false, 
     prevArrow: ".prev-page",
     nextArrow: ".next-page"

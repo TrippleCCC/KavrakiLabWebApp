@@ -122,7 +122,12 @@ $(".download-selected").click(function(event) {
     init_ping_download(data);
 });
 
+$(".dev-dots").slick({});
+
 $(".pages").slick({
+    dots: true,
+    appendDots: ".dots-area",
+    dotsClass: "nav-dots",
     infinite: false, 
     prevArrow: ".prev-page",
     nextArrow: ".next-page"
