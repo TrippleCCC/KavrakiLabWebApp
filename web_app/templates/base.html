@@ -105,7 +105,28 @@
             {% endwith %}
 
 			<div class="container">
-			{% block results %}{% endblock %}
+			{% block results %}
+            <main class="container">
+                <div class="bg-light p-5 rounded">
+                    <h1>Welcome to the Kavraki Web App!</h1>
+                    <p>
+                    Use the search form above to execute a search on the database.
+                    </p>
+                    <br>
+                    <h3>Tips and tricks</h3>
+                    <ul>
+                        <li><h5>Regex Search</h5></li>
+                        <p>Users can preform a "regex" like search over peptide entries in the database.
+                        The syntax consists of letter number pairs speparated by commas. The letter in each
+                        pair represents a protein and the number represents the desired position of that protein.</p>
+                        <ul>
+                            <li>"A1" - Protein A in the first position</li>
+                            <li>"A1, B4" - Protein A in the first position and Protein B in the fourth postion</li>
+                            <li>"A1, B4, C1" - Same as last but C protein overrides protein A</li>
+                    </ul>
+                </div>
+            </main>
+            {% endblock %}
 			</div>
 		</div>
 
