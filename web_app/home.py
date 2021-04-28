@@ -167,6 +167,11 @@ def results():
     query_time = end - start
     num_results = len(data)
 
+    # split data into different pages
+    pages = []
+    for i in range(0, num_results, 10):
+        pages.append(data[i:i+10])
+
 
     # Generate order urls
     parameters = {
@@ -186,10 +191,10 @@ def results():
         order_urls["num_confirmations_asc"] = url_for(".results", order_conf="asc", **parameters)
         order_urls["num_confirmations_desc"] = url_for(".results", order_conf="desc", **parameters)
 
-    return render_template("results.html", results=data, allele=allele, 
+    return render_template("results.html", allele=allele, 
             peptide=peptide, num_results=num_results, query_time=query_time,
             binder=binder, non_binder=non_binder, peptide_regex=peptide_regex,
-            confirmation_type=confirmation_type, order_urls=order_urls)
+            confirmation_type=confirmation_type, order_urls=order_urls, pages=pages)
 
 
 @bp.route("/suggest/<suggest_type>", methods=["GET"])

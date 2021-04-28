@@ -27,9 +27,13 @@
         </div>
     </div>
 </div>
-{% if confirmation_type == "singleconf" %}
-<h5>Results</h5>
-<p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
+<div id="results-loading" class="d-flex justify-content-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only"></span>
+    </div>
+    <p class="mx-3" >Loading pages...</p>
+</div>
+<div class="results-area" style="visibility:hidden">
 {% with flash_message = get_flashed_messages(category_filter=["warning"]) %}
 	{% if flash_message %}
         {% for msg in flash_message %}
@@ -39,156 +43,184 @@
         {% endfor %}
 	{% endif %}
 {% endwith %}
-<table class="table table-striped">
-	<thread>
-		<tr>
-            <th scope="col">Allele 
-                <a href='{{ order_urls["allele_asc"] }}'>
-                    <i class="bi bi-arrow-down"></i>
-                </a>
-                <a href='{{ order_urls["allele_desc"] }}'>
-                    <i class="bi bi-arrow-up"></i>
-                </a>
-            </th>
-            <th scope="col">Peptide 
-                <a href='{{ order_urls["peptide_asc"] }}'>
-                    <i class="bi bi-arrow-down"></i>
-                </a>
-                <a href='{{ order_urls["peptide_desc"] }}'>
-                    <i class="bi bi-arrow-up"></i>
-                </a>
-            </th>
-            <th scope="col">Binder 
-                <a href='{{ order_urls["binder_asc"] }}'>
-                    <i class="bi bi-arrow-down"></i>
-                </a>
-                <a href='{{ order_urls["binder_desc"] }}'>
-                    <i class="bi bi-arrow-up"></i>
-                </a>
-            </th>
-			<th scope="col">
-                <div class="container d-flex justify-content-center">
-                    Download
+<!-- singleconf results -->
+<div class="d-flex justify-content-between">
+    <div>
+        <h5>Results</h5>
+        <p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
+    </div>
+    <div class="d-flex justify-content-end py-3">
+        <p class="page-index mx-2 my-2">Page 1 out of {{ pages|length }}</p>
+        <div class="btn-group" role="group">
+            <button type="button" class="prev-page btn btn-primary">Prev</button>
+            <button type="button" class="next-page btn btn-primary">Next</button>
+        </div>
+    </div>
+</div>
+{% if confirmation_type == "singleconf" %}
+<div class="pages">
+{% for datas in pages %}
+<div>
+    <table class="table table-striped">
+        <thread>
+            <tr>
+                <th scope="col">Allele 
+                    <a href='{{ order_urls["allele_asc"] }}'>
+                        <i class="bi bi-arrow-down"></i>
+                    </a>
+                    <a href='{{ order_urls["allele_desc"] }}'>
+                        <i class="bi bi-arrow-up"></i>
+                    </a>
+                </th>
+                <th scope="col">Peptide 
+                    <a href='{{ order_urls["peptide_asc"] }}'>
+                        <i class="bi bi-arrow-down"></i>
+                    </a>
+                    <a href='{{ order_urls["peptide_desc"] }}'>
+                        <i class="bi bi-arrow-up"></i>
+                    </a>
+                </th>
+                <th scope="col">Binder 
+                    <a href='{{ order_urls["binder_asc"] }}'>
+                        <i class="bi bi-arrow-down"></i>
+                    </a>
+                    <a href='{{ order_urls["binder_desc"] }}'>
+                        <i class="bi bi-arrow-up"></i>
+                    </a>
+                </th>
+                <th scope="col">
+                    <div class="container d-flex justify-content-center">
+                        Download
+                    </div>
+                </th>
+                <th scope="col">
+                    <div class="container d-flex justify-content-center">
+                        <button id="download-selected" class="download-selected btn btn-link">Download Selected</button>
+                    </div>
+                    <div class="container d-flex justify-content-center">
+                        <input type="checkbox" id="select-all" class="select-all" />
+                    </div>
+                </th>
+            </tr>
+        </thread>
+        <tbody>
+        {% for row in datas %}
+        <tr>
+            <td>{{ row["allele"] }}</td>
+            <td>{{ row["peptide"] | safe}}</td>
+            <td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
+            <td>
+                <div class="container d-flex h-100 justify-content-center">
+                    <a href='{{ url_for("download.download", path=row["filepath"]) }}' class="btn btn-primary">
+                        Download
+                    </a>
                 </div>
-            </th>
-            <th scope="col">
-                <div class="container d-flex justify-content-center">
-                    <button id="download-selected" class="btn btn-link">Download Selected</button>
+            </td>
+            <td>
+                <div class="container d-flex h-100 justify-content-center">
+                    <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["id"] }}"/>
                 </div>
-                <div class="container d-flex justify-content-center">
-                    <input type="checkbox" id="select-all" />
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endfor %}
+</div>
+{% elif confirmation_type == "multiconf" %}
+<div class="pages">
+{% for datas in pages %}
+<div>
+    <table class="table table-striped">
+        <thread>
+            <tr>
+                <th scope="col">Allele
+                    <a href='{{ order_urls["allele_asc"] }}'>
+                        <i class="bi bi-arrow-down"></i>
+                    </a>
+                    <a href='{{ order_urls["allele_desc"] }}'>
+                        <i class="bi bi-arrow-up"></i>
+                    </a>
+                </th>
+                <th scope="col">Peptide
+                    <a href='{{ order_urls["peptide_asc"] }}'>
+                        <i class="bi bi-arrow-down"></i>
+                    </a>
+                    <a href='{{ order_urls["peptide_desc"] }}'>
+                        <i class="bi bi-arrow-up"></i>
+                    </a>
+                </th>
+                <th scope="col">Binder
+                    <a href='{{ order_urls["binder_asc"] }}'>
+                        <i class="bi bi-arrow-down"></i>
+                    </a>
+                    <a href='{{ order_urls["binder_desc"] }}'>
+                        <i class="bi bi-arrow-up"></i>
+                    </a>
+                </th>
+                <th scope="col">Number of Confirmations
+                    <a href='{{ order_urls["num_confirmations_asc"] }}'>
+                        <i class="bi bi-arrow-down"></i>
+                    </a>
+                    <a href='{{ order_urls["num_confirmations_desc"] }}'>
+                        <i class="bi bi-arrow-up"></i>
+                    </a>
+                </th>
+                <th scope="col">
+                    <div class="container d-flex justify-content-center">
+                        Download
+                    </div>
+                </th>
+                <th scope="col">
+                    <div class="container d-flex justify-content-center">
+                        <button id="download-selected" class="btn btn-link">Download Selected</button>
+                    </div>
+                    <div class="container d-flex justify-content-center">
+                        <input type="checkbox" id="select-all" />
+                    </div>
+                </th>
+            </tr>
+        </thread>
+        <tbody>
+        {% for row in datas %}
+        <tr>
+            <td>{{ row["allele"] }}</td>
+            <td>{{ row["peptide"] | safe}}</td>
+            <td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
+            <td>{{ row["num_confirmations"] }}</td>
+            <td>
+                <div class="container d-flex h-100 justify-content-center">
+                    <button value='{{ row["id"] }}' class="downloadButton btn btn-primary">
+                        Download
+                    </button>
                 </div>
-            </th>
-		</tr>
-	</thread>
-	<tbody>
-	{% for row in results %}
-	<tr>
-		<td>{{ row["allele"] }}</td>
-        <td>{{ row["peptide"] | safe}}</td>
-		<td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
-		<td>
-            <div class="container d-flex h-100 justify-content-center">
-                <a href='{{ url_for("download.download", path=row["filepath"]) }}' class="btn btn-primary">
-                    Download
-                </a>
-            </div>
-        </td>
-        <td>
-            <div class="container d-flex h-100 justify-content-center">
-                <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["id"] }}"/>
-            </div>
-        </td>
-	</tr>
-	{% endfor %}
-	</tbody>
-</table>
+            </td>
+            <td>
+                <div class="container d-flex h-100 justify-content-center">
+                    <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["id"] }}"/>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endfor %}
+</div>
+{% endif %}
+<div class="d-flex justify-content-end py-3">
+    <p class="page-index mx-2 my-2">Page 1 out of {{ pages|length }}</p>
+    <div class="btn-group" role="group">
+        <button type="button" class="prev-page btn btn-primary">Prev</button>
+        <button type="button" class="next-page btn btn-primary">Next</button>
+    </div>
+</div>
+{% if confirmation_type == "singleconf" %}
 <script src='{{ url_for("static", filename="js/singleconf_results_page.js") }}'></script>
 {% elif confirmation_type == "multiconf" %}
-<h5>Results</h5>
-<p>Retrived {{ num_results }} results in {{ '%2.4f' % query_time }} seconds</p>
-{% with flash_message = get_flashed_messages(category_filter=["warning"]) %}
-	{% if flash_message %}
-        {% for msg in flash_message %}
-            <div class="alert alert-warning" role="alert">
-                ⚠️  {{ msg }} 
-            </div>
-        {% endfor %}
-	{% endif %}
-{% endwith %}
-<table class="table table-striped">
-	<thread>
-		<tr>
-			<th scope="col">Allele
-                <a href='{{ order_urls["allele_asc"] }}'>
-                    <i class="bi bi-arrow-down"></i>
-                </a>
-                <a href='{{ order_urls["allele_desc"] }}'>
-                    <i class="bi bi-arrow-up"></i>
-                </a>
-            </th>
-			<th scope="col">Peptide
-                <a href='{{ order_urls["peptide_asc"] }}'>
-                    <i class="bi bi-arrow-down"></i>
-                </a>
-                <a href='{{ order_urls["peptide_desc"] }}'>
-                    <i class="bi bi-arrow-up"></i>
-                </a>
-            </th>
-			<th scope="col">Binder
-                <a href='{{ order_urls["binder_asc"] }}'>
-                    <i class="bi bi-arrow-down"></i>
-                </a>
-                <a href='{{ order_urls["binder_desc"] }}'>
-                    <i class="bi bi-arrow-up"></i>
-                </a>
-            </th>
-            <th scope="col">Number of Confirmations
-                <a href='{{ order_urls["num_confirmations_asc"] }}'>
-                    <i class="bi bi-arrow-down"></i>
-                </a>
-                <a href='{{ order_urls["num_confirmations_desc"] }}'>
-                    <i class="bi bi-arrow-up"></i>
-                </a>
-            </th>
-			<th scope="col">
-                <div class="container d-flex justify-content-center">
-                    Download
-                </div>
-            </th>
-            <th scope="col">
-                <div class="container d-flex justify-content-center">
-                    <button id="download-selected" class="btn btn-link">Download Selected</button>
-                </div>
-                <div class="container d-flex justify-content-center">
-                    <input type="checkbox" id="select-all" />
-                </div>
-            </th>
-		</tr>
-	</thread>
-	<tbody>
-	{% for row in results %}
-	<tr>
-		<td>{{ row["allele"] }}</td>
-        <td>{{ row["peptide"] | safe}}</td>
-		<td>{{ "binder" if row["binder"]==1 else "non-binder" }}</td>
-        <td>{{ row["num_confirmations"] }}</td>
-		<td>
-            <div class="container d-flex h-100 justify-content-center">
-                <button value='{{ row["id"] }}' class="downloadButton btn btn-primary">
-                    Download
-                </button>
-            </div>
-        </td>
-        <td>
-            <div class="container d-flex h-100 justify-content-center">
-                <input name="selection-item" type="checkbox" class="selection-item" value="{{ row["id"] }}"/>
-            </div>
-        </td>
-	</tr>
-	{% endfor %}
-	</tbody>
-</table>
 <script src='{{ url_for("static", filename="js/multiconf_results_page.js") }}'></script>
 {% endif %}
+
+</div>
 {% endblock %}
