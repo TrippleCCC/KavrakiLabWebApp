@@ -75,6 +75,18 @@
 						<label class="form-check-label" for="multi-confirmation-type">Multi-Conf</label>
 					</div>
 				</div>
+                <div class="row g-0 mx-2 my-2">
+                    Results per page:
+					<div class="col-auto mx-2">
+                        <select name="results-per-page" class="form-select" aria-label="results per page">
+                            <option {% if results_per_page == 10 or not results_per_page %}selected{% endif %} value="10">10</option>
+                            <option {% if results_per_page == 20 %}selected{% endif %} value="20">20</option>
+                            <option {% if results_per_page == 30 %}selected{% endif %} value="30">30</option>
+                            <option {% if results_per_page == 40 %}selected{% endif %} value="40">40</option>
+                            <option {% if results_per_page == 50 %}selected{% endif %} value="50">50</option>
+                        </select>
+					</div>
+                </div>
 				<div class="row g-0 mx-1 my-2">
 					<div class="col-auto mx-1">
 						<input class="btn btn-outline-success" type="submit" value="search">

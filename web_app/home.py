@@ -29,6 +29,7 @@ def search():
     non_binder = request.form.get("non-binder") or "off"
     peptide_regex = request.form.get("peptide-regex") or "off"
     confirmation_type = request.form.get("confirmation-type")
+    results_per_page = request.form.get("results-per-page")
 
     if not confirmation_type:
         flash("Please select Confirmation type.", "errors")
@@ -37,7 +38,7 @@ def search():
     return redirect(
             url_for(".results", allele=allele, peptide=peptide, 
                 binder=binder, non_binder=non_binder, peptide_regex=peptide_regex,
-                confirmation_type=confirmation_type))
+                confirmation_type=confirmation_type, results_per_page=results_per_page))
 
 
 @bp.route("/results", methods=["GET"])
@@ -51,6 +52,7 @@ def results():
     non_binder = request.args.get("non_binder")
     peptide_regex = request.args.get("peptide_regex")
     confirmation_type = request.args.get("confirmation_type")
+    results_per_page = int(request.args.get("results_per_page"))
 
     # Ordering parameters
     order_allele = request.args.get("order_allele")
@@ -169,8 +171,8 @@ def results():
 
     # split data into different pages
     pages = []
-    for i in range(0, num_results, 10):
-        pages.append(data[i:i+10])
+    for i in range(0, num_results, int(results_per_page)):
+        pages.append(data[i:i+int(results_per_page)])
 
 
     # Generate order urls
@@ -194,7 +196,8 @@ def results():
     return render_template("results.html", allele=allele, 
             peptide=peptide, num_results=num_results, query_time=query_time,
             binder=binder, non_binder=non_binder, peptide_regex=peptide_regex,
-            confirmation_type=confirmation_type, order_urls=order_urls, pages=pages)
+            confirmation_type=confirmation_type, order_urls=order_urls, pages=pages,
+            results_per_page=results_per_page)
 
 
 @bp.route("/suggest/<suggest_type>", methods=["GET"])
