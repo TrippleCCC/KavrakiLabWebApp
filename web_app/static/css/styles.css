@@ -50,3 +50,7 @@
     outline: none;
     border: none;
 }
+
+.order-link {
+    text-decoration: none;
+}
