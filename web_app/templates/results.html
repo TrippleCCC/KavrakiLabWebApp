@@ -216,13 +216,10 @@
         <button type="button" class="next-page btn btn-primary">Next</button>
     </div>
 </div>
-<div class="dots-area">
-</div>
 {% if confirmation_type == "singleconf" %}
 <script src='{{ url_for("static", filename="js/singleconf_results_page.js") }}'></script>
 {% elif confirmation_type == "multiconf" %}
 <script src='{{ url_for("static", filename="js/multiconf_results_page.js") }}'></script>
 {% endif %}
-
 </div>
 {% endblock %}

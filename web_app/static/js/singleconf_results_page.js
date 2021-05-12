@@ -125,9 +125,6 @@ $(".download-selected").click(function(event) {
 $(".dev-dots").slick({});
 
 $(".pages").slick({
-    dots: true,
-    appendDots: ".dots-area",
-    dotsClass: "nav-dots",
     infinite: false, 
     prevArrow: ".prev-page",
     nextArrow: ".next-page"
