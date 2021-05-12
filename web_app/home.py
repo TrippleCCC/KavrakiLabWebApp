@@ -13,7 +13,7 @@ from web_app.db import get_db
 
 bp = Blueprint("home", __name__, "/")
 
-LIMIT_MESSAGE = "Results have been limited to 2000 for all-allele, all-pepetide search"
+LIMIT_MESSAGE = "Results limited to 10000. No Allele/Peptide specification for this search. Consider specifying allele and peptide for better results."
 
 @bp.route("/", methods=["GET"])
 def home():
@@ -146,7 +146,7 @@ def results():
     # Add limit if allele and peptide are not specified
     if (allele, peptide) == ("any-allele", "any-peptide"):
         flash(LIMIT_MESSAGE, "warning")
-        query_builder = query_builder.limit(2000)
+        query_builder = query_builder.limit(10000)
 
     # Calculate query time
     start = time.time()
