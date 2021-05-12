@@ -179,7 +179,7 @@ def results():
     parameters = {
             "allele": allele, "peptide": peptide, "binder": binder,
             "non_binder": non_binder, "peptide_regex": peptide_regex,
-            "confirmation_type": confirmation_type
+            "confirmation_type": confirmation_type, "results_per_page": results_per_page 
             }
     order_urls = {
             "allele_asc": url_for(".results", order_allele="asc", **parameters),
